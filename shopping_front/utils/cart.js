@@ -1,37 +1,27 @@
-const CART_KEY = 'shopping_cart_items'
+import { del, get, post, put } from '@/utils/request.js'
 
-function normalizeCartItem(item = {}) {
-	const next = Object.assign({}, item)
-	next.id = String(next.id || next.title || '').trim()
-	next.title = String(next.title || '').trim()
-	next.price = normalizePrice(next.price)
-	next.qty = normalizeQty(next.qty)
-	next.cover = next.cover || ''
-	next.tag = next.tag || ''
-	next.credit = next.credit || ''
-	next.shopName = next.shopName || '松果集市卖家'
-	next.scene = next.scene || 'used'
-	next.checked = next.checked !== false
-	next.valid = next.valid !== false
-	return next
+function unwrapList(res) {
+	const body = res && res.data
+	const list = body && Array.isArray(body.data) ? body.data : (Array.isArray(body) ? body : [])
+	return list.map(toFrontItem)
 }
 
-function readCart() {
-	try {
-		const list = uni.getStorageSync(CART_KEY)
-		if (!Array.isArray(list)) return []
-		const normalized = list.map((item) => normalizeCartItem(item)).filter((item) => item.id && item.title)
-		if (JSON.stringify(normalized) !== JSON.stringify(list)) {
-			writeCart(normalized)
-		}
-		return normalized
-	} catch (e) {
-		return []
+function toFrontItem(row = {}) {
+	return {
+		cartId: row.cartId,
+		id: String(row.goodsId || ''),
+		title: String(row.title || '商品').trim() || '商品',
+		price: normalizePrice(row.price),
+		qty: normalizeQty(row.quantity),
+		cover: row.cover || '',
+		tag: '',
+		credit: '',
+		shopName: row.shopName || '松果集市卖家',
+		scene: row.scene || 'used',
+		category: String(row.category || '').trim(),
+		checked: row.selected !== false,
+		valid: row.valid !== false
 	}
-}
-
-function writeCart(list) {
-	uni.setStorageSync(CART_KEY, list)
 }
 
 function normalizePrice(value) {
@@ -44,51 +34,69 @@ function normalizeQty(value) {
 	return Number.isFinite(n) && n > 0 ? n : 1
 }
 
-export function getCartItems() {
-	return readCart()
+function goodsIdOf(payload = {}) {
+	const n = Number(payload.id || payload.goodsId)
+	return Number.isInteger(n) && n > 0 ? n : 0
 }
 
-export function addCartItem(payload = {}) {
-	const item = normalizeCartItem(payload)
-	if (!item.title) {
-		throw new Error('商品标题不能为空')
+async function findByGoodsId(id) {
+	const list = await getCartItems()
+	const key = String(id || '')
+	return list.find((item) => item.id === key) || null
+}
+
+export async function getCartItems() {
+	try {
+		return unwrapList(await get('/api/cart'))
+	} catch (e) {
+		if (e && e.statusCode === 401) return []
+		throw e
 	}
-	const list = readCart()
-	const found = list.find((current) => current.id === item.id)
-	if (found) {
-		found.qty = normalizeQty(found.qty + normalizeQty(item.qty || 1))
-		found.checked = true
-	} else {
-		list.unshift(item)
+}
+
+export async function addCartItem(payload = {}) {
+	const goodsId = goodsIdOf(payload)
+	if (goodsId <= 0) {
+		throw new Error('商品信息缺失')
 	}
-	writeCart(list)
-	return list
+	return unwrapList(await post('/api/cart', {
+		goodsId,
+		quantity: normalizeQty(payload.qty || payload.quantity || 1)
+	}))
 }
 
-export function updateCartItem(id, patch = {}) {
-	const list = readCart()
-	const index = list.findIndex((item) => item.id === id)
-	if (index < 0) return list
-	const next = normalizeCartItem(Object.assign({}, list[index], patch))
-	list.splice(index, 1, next)
-	writeCart(list)
-	return list
+export async function updateCartItem(id, patch = {}) {
+	const current = await findByGoodsId(id)
+	if (!current || !current.cartId) return getCartItems()
+	if (Object.prototype.hasOwnProperty.call(patch, 'qty') || Object.prototype.hasOwnProperty.call(patch, 'quantity')) {
+		const quantity = normalizeQty(patch.qty != null ? patch.qty : patch.quantity)
+		return unwrapList(await put('/api/cart/' + encodeURIComponent(current.cartId), { quantity }))
+	}
+	if (Object.prototype.hasOwnProperty.call(patch, 'checked') || Object.prototype.hasOwnProperty.call(patch, 'selected')) {
+		const selected = patch.checked != null ? patch.checked !== false : patch.selected !== false
+		return unwrapList(await put('/api/cart/' + encodeURIComponent(current.cartId) + '/select', { selected }))
+	}
+	return getCartItems()
 }
 
-export function removeCartItem(id) {
-	const list = readCart().filter((item) => item.id !== id)
-	writeCart(list)
-	return list
+export async function removeCartItem(id) {
+	const current = await findByGoodsId(id)
+	if (!current || !current.cartId) return getCartItems()
+	return unwrapList(await del('/api/cart/' + encodeURIComponent(current.cartId)))
 }
 
-export function clearCheckedCartItems() {
-	const list = readCart().filter((item) => !item.checked)
-	writeCart(list)
-	return list
+export async function clearCheckedCartItems() {
+	const list = await getCartItems()
+	const selected = list.filter((item) => item.checked && item.cartId)
+	for (const item of selected) {
+		await del('/api/cart/' + encodeURIComponent(item.cartId))
+	}
+	return getCartItems()
 }
 
-export function getCartCount() {
-	return readCart().reduce((sum, item) => sum + normalizeQty(item.qty), 0)
+export async function getCartCount() {
+	const list = await getCartItems()
+	return list.reduce((sum, item) => sum + normalizeQty(item.qty), 0)
 }
 
 export function groupCartByShop(items = []) {

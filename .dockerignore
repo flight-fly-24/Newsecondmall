@@ -1,0 +1,15 @@
+.git
+.agents
+.codex
+.idea
+.vscode
+
+**/node_modules
+**/target
+**/unpackage
+**/dist
+**/*.log
+
+deploy/.env
+application-local.properties
+NewSecondMall-db.local.*

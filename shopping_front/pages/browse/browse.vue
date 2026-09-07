@@ -67,7 +67,7 @@
               <view class="topic-main">
                 <view class="article-line">
                   <text class="badge">{{ item.type }}</text>
-                  <text class="heat">{{ item.heat }}</text>
+                  <text class="heat">{{ formatTopicHeat(item) }}</text>
                 </view>
                 <text class="article-title">{{ item.title }}</text>
                 <text class="article-desc">{{ item.desc }}</text>
@@ -117,7 +117,7 @@
 
         <view class="aside">
           <view class="aside-card">
-            <text class="aside-title">数据库标签</text>
+            <text class="aside-title">标签筛选</text>
             <view class="tag-cloud">
               <text class="cloud-tag" :class="{ on: activeTag === '' }" @click="setTopicTag('')">全部</text>
               <text v-for="tag in hotTags" :key="tag" class="cloud-tag" :class="{ on: activeTag === tag }" @click="setTopicTag(tag)">{{ tag }}</text>
@@ -226,7 +226,7 @@
 </template>
 
 <script>
-  import { buildGoodsDetailUrl, buildTopicDetailUrl } from '../../data/catalog.js'
+  import { buildGoodsDetailUrl, buildTopicDetailUrl, formatTopicHeat } from '../../data/catalog.js'
   import { createTopic, fetchProducts, fetchStores, fetchTopics, uploadImage } from '@/services/shop.js'
   import { isImageUrl, resolveImageUrl } from '@/utils/media.js'
   import { getCachedUser, normalizeRole, pickErrorMessage } from '@/utils/auth.js'
@@ -279,6 +279,7 @@
     },
     onLoad() {
       this.currentUser = getCachedUser()
+      this._skipTopicRefresh = true
       this.loadAll()
     },
     onShow() {
@@ -288,10 +289,19 @@
         this.activeTab = 'topics'
         this.openCreateModal()
       }
+      if (this._skipTopicRefresh) {
+        this._skipTopicRefresh = false
+        return
+      }
+      this.refreshTopicCounts()
     },
     methods: {
       isImageUrl,
       resolveImageUrl,
+      formatTopicHeat,
+      async refreshTopicCounts() {
+        await Promise.all([this.loadTopics(), this.loadAllTopics()])
+      },
       async loadAll() {
         await Promise.all([this.loadTopics(), this.loadAllTopics(), this.loadStores(), this.loadStoryGoods()])
       },

@@ -11,5 +11,10 @@
 
     <modules>
         <module>shopping_back/shopping_back</module>
+        <module>services/common</module>
+        <module>services/user-service</module>
+        <module>services/catalog-service</module>
+        <module>services/trade-service</module>
+        <module>services/interaction-service</module>
     </modules>
 </project>

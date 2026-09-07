@@ -194,15 +194,15 @@ public interface CenterMapper {
     @Update("UPDATE users SET credit = GREATEST(0, LEAST(100, credit + #{changeValue})) WHERE user_id = #{userId}")
     int updateCredit(@Param("userId") Integer userId, @Param("changeValue") Integer changeValue);
 
-    @Select("SELECT id, reason AS title, CONCAT('变动 ', change_value, ' 分') AS `desc`, 'credit' AS type, DATE_FORMAT(created_at, '%Y-%m-%d %H:%i') AS createdAt " +
+    @Select("SELECT id, reason AS title, CONCAT('变动 ', change_value, ' 分') AS `desc`, 'credit' AS type, DATE_FORMAT(created_at, '%Y-%m-%d %H:%i') AS createdAt, NULL AS targetId " +
             "FROM credit_record WHERE user_id = #{userId} ORDER BY id DESC LIMIT 20")
     List<InteractionItem> creditRecords(@Param("userId") Integer userId);
 
-    @Insert("INSERT INTO favorite_goods(user_id, goods_id, item_title) VALUES(#{userId}, 1, #{title})")
-    int addFavorite(@Param("userId") Integer userId, @Param("title") String title);
+    @Insert("INSERT INTO favorite_goods(user_id, goods_id, item_title) VALUES(#{userId}, #{goodsId}, #{title})")
+    int addFavorite(@Param("userId") Integer userId, @Param("goodsId") Integer goodsId, @Param("title") String title);
 
-    @Insert("INSERT INTO browse_history(user_id, goods_id, item_title) VALUES(#{userId}, 1, #{title})")
-    int addBrowse(@Param("userId") Integer userId, @Param("title") String title);
+    @Insert("INSERT INTO browse_history(user_id, goods_id, item_title) VALUES(#{userId}, #{goodsId}, #{title})")
+    int addBrowse(@Param("userId") Integer userId, @Param("goodsId") Integer goodsId, @Param("title") String title);
 
     @Insert("INSERT IGNORE INTO follow_store(user_id, store_id, store_name) " +
             "SELECT #{userId}, store_id, store_name FROM store WHERE store_name = #{storeName} ORDER BY store_id LIMIT 1")
@@ -220,19 +220,23 @@ public interface CenterMapper {
     @Delete("DELETE FROM follow_topic WHERE user_id = #{userId}")
     int clearTopicFollows(@Param("userId") Integer userId);
 
-    @Select("SELECT id, item_title AS title, '收藏商品' AS `desc`, 'favorite' AS type, DATE_FORMAT(created_at, '%Y-%m-%d %H:%i') AS createdAt " +
+    @Select("SELECT id, item_title AS title, '收藏商品' AS `desc`, 'favorite' AS type, DATE_FORMAT(created_at, '%Y-%m-%d %H:%i') AS createdAt, " +
+            "CASE WHEN goods_id IS NOT NULL AND goods_id <> 1 THEN goods_id " +
+            "ELSE COALESCE((SELECT g.goods_id FROM goods g WHERE g.goods_name COLLATE utf8mb4_general_ci = favorite_goods.item_title COLLATE utf8mb4_general_ci ORDER BY g.goods_id DESC LIMIT 1), goods_id) END AS targetId " +
             "FROM favorite_goods WHERE user_id = #{userId} ORDER BY id DESC LIMIT 20")
     List<InteractionItem> favorites(@Param("userId") Integer userId);
 
-    @Select("SELECT id, item_title AS title, '浏览足迹' AS `desc`, 'history' AS type, DATE_FORMAT(viewed_at, '%Y-%m-%d %H:%i') AS createdAt " +
+    @Select("SELECT id, item_title AS title, '浏览足迹' AS `desc`, 'history' AS type, DATE_FORMAT(viewed_at, '%Y-%m-%d %H:%i') AS createdAt, " +
+            "CASE WHEN goods_id IS NOT NULL AND goods_id <> 1 THEN goods_id " +
+            "ELSE COALESCE((SELECT g.goods_id FROM goods g WHERE g.goods_name COLLATE utf8mb4_general_ci = browse_history.item_title COLLATE utf8mb4_general_ci ORDER BY g.goods_id DESC LIMIT 1), goods_id) END AS targetId " +
             "FROM browse_history WHERE user_id = #{userId} ORDER BY id DESC LIMIT 20")
     List<InteractionItem> browseHistory(@Param("userId") Integer userId);
 
-    @Select("SELECT id, store_name AS title, '关注店铺' AS `desc`, 'follow' AS type, DATE_FORMAT(created_at, '%Y-%m-%d %H:%i') AS createdAt " +
+    @Select("SELECT id, store_name AS title, '关注店铺' AS `desc`, 'follow' AS type, DATE_FORMAT(created_at, '%Y-%m-%d %H:%i') AS createdAt, store_id AS targetId " +
             "FROM follow_store WHERE user_id = #{userId} ORDER BY id DESC LIMIT 20")
     List<InteractionItem> follows(@Param("userId") Integer userId);
 
-    @Select("SELECT id, topic_title AS title, '关注话题' AS `desc`, 'topicFollow' AS type, DATE_FORMAT(created_at, '%Y-%m-%d %H:%i') AS createdAt " +
+    @Select("SELECT id, topic_title AS title, '关注话题' AS `desc`, 'topicFollow' AS type, DATE_FORMAT(created_at, '%Y-%m-%d %H:%i') AS createdAt, topic_id AS targetId " +
             "FROM follow_topic WHERE user_id = #{userId} ORDER BY id DESC LIMIT 20")
     List<InteractionItem> topicFollows(@Param("userId") Integer userId);
 }

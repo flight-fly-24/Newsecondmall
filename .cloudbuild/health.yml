@@ -1,0 +1,49 @@
+---
+version: 2.0
+
+env:
+  resource:
+    type: docker
+    arch: X86
+    class: 2U8G
+
+steps:
+  PRE_BUILD:
+    - checkout:
+        name: checkout
+        inputs:
+          scm: codehub
+          url: https://codehub.devcloud.cn-north-4.huaweicloud.com/a111c887c5a545eda4c6976ba10c1a75/NewSecondMall.git
+          branch: ${codeBranch}
+          lfs: true
+          submodule: true
+          depth: 1
+
+  BUILD:
+    - sh:
+        name: kubernetes-health
+        inputs:
+          command: |-
+            set -eu
+            if [ ! -f scripts/ci-health-job.sh ]; then
+              echo "找不到 ci-health-job.sh"
+              exit 1
+            fi
+            bash scripts/ci-health-job.sh
+          ignore_fail: true
+    - upload_artifact:
+        name: upload-health-evidence
+        inputs:
+          path: "ci-artifacts/**"
+          custom_upload_path: /NewSecondMall-health/
+          ignore_fail: true
+    - sh:
+        name: health-gate
+        inputs:
+          command: |-
+            set -eu
+            if [ ! -f scripts/ci-health-gate.sh ]; then
+              echo "找不到 ci-health-gate.sh"
+              exit 1
+            fi
+            bash scripts/ci-health-gate.sh

@@ -21,8 +21,13 @@ public interface UserMapper {
             "FROM users WHERE username = #{username} ORDER BY user_id LIMIT 1")
     StoredUser findByUsername(String username);
 
+    @Select("SELECT user_id AS userId, username, password_hash AS passwordHash, phone, credit, role, " +
+            "COALESCE(status, 'normal') AS status, avatar_url AS avatarUrl " +
+            "FROM users WHERE phone = #{phone} ORDER BY user_id LIMIT 1")
+    StoredUser findByPhone(@Param("phone") String phone);
+
     @Select("SELECT user_id AS userId, username, phone, credit, role, COALESCE(status, 'normal') AS status, avatar_url AS avatarUrl " +
-            "FROM users WHERE username LIKE CONCAT('%', #{keyword}, '%')")
+            "FROM users WHERE username LIKE CONCAT('%', #{keyword}, '%') ESCAPE '\\\\'")
     List<StoredUser> searchUsersByKeyword(@Param("keyword") String keyword);
 
     @Select("SELECT COUNT(*) FROM information_schema.COLUMNS " +

@@ -1,0 +1,1 @@
+{"url": "http://10.43.147.22:8082/api/products", "threads": 20, "duration_s": 60.1, "requests": 18479, "throughput_rps": 307.36, "avg_ms": 64.97, "p95_ms": 181.7, "errors": 0, "error_rate": 0.0}

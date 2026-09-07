@@ -51,7 +51,7 @@ public final class CenterDtos {
     public record UserRow(Integer userId, String username, String role, String status, Integer credit) {
     }
 
-    public record InteractionItem(Integer id, String title, String desc, String type, String createdAt) {
+    public record InteractionItem(Integer id, String title, String desc, String type, String createdAt, Integer targetId) {
     }
 
     public record CreditAdjustRequest(Integer changeValue, String reason) {

@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
@@ -23,9 +24,11 @@ public class AuthService {
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
     private final UserMapper userMapper;
     private final Map<String, String> tokenToUsername = new ConcurrentHashMap<>();
+    private final RestClient identityClient;
 
     public AuthService(UserMapper userMapper) {
         this.userMapper = userMapper;
+        this.identityClient = RestClient.create(System.getenv().getOrDefault("AUTH_BASE_URL", "http://127.0.0.1:8081"));
         ensureSchema();
         ensureSeedUser("demo", "demo123", "13800138000", "buyer");
         ensureSeedUser("seller", "seller123", "13700000000", "seller");
@@ -33,11 +36,20 @@ public class AuthService {
     }
 
     public synchronized LoginResponse register(RegisterRequest req) {
+        if (req == null || isBlank(req.getUsername())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "用户名不能为空");
+        }
+        if (isBlank(req.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "密码不能为空");
+        }
         String username = req.getUsername().trim();
         if (userMapper.findByUsername(username) != null) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Username already exists");
         }
         String phone = req.getPhone() == null ? "" : req.getPhone().trim();
+        if (!phone.isEmpty() && userMapper.findByPhone(phone) != null) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Phone already registered");
+        }
         String role = normalizeRegisterRole(req.getRole());
         StoredUser user = new StoredUser(username, encoder.encode(req.getPassword()), phone, role);
         userMapper.insertUser(user);
@@ -74,13 +86,34 @@ public class AuthService {
         }
         String username = tokenToUsername.get(token.trim());
         if (username == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Login expired");
+            username = resolveMicroserviceUsername(token.trim());
+            tokenToUsername.put(token.trim(), username);
         }
         StoredUser user = userMapper.findByUsername(username);
         if (user == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found");
         }
         return user;
+    }
+
+    /**
+     * 旧单体仍承载聊天、上传等兼容接口时，校验 user-service 签发的登录令牌。
+     * 令牌只在远端校验成功后映射到同名兼容用户，不接受客户端自报身份。
+     */
+    private String resolveMicroserviceUsername(String token) {
+        try {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> body = identityClient.get().uri("/api/auth/me")
+                    .header("Authorization", "Bearer " + token).retrieve().body(Map.class);
+            Object dataValue = body == null ? null : body.get("data");
+            if (dataValue instanceof Map<?, ?> data && data.get("username") instanceof String username
+                    && !username.isBlank()) {
+                return username.trim();
+            }
+        } catch (RuntimeException ignored) {
+            // 对外统一返回 401，避免泄漏下游连接与鉴权细节。
+        }
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Login expired");
     }
 
     public AuthUserView getUserById(Integer userId) {
@@ -95,12 +128,22 @@ public class AuthService {
         if (keyword == null || keyword.trim().isEmpty()) {
             return new java.util.ArrayList<>();
         }
-        List<StoredUser> users = userMapper.searchUsersByKeyword(keyword.trim());
+        List<StoredUser> users = userMapper.searchUsersByKeyword(escapeLike(keyword.trim()));
         List<AuthUserView> views = new java.util.ArrayList<>();
         for (StoredUser user : users) {
             views.add(toView(user));
         }
         return views;
+    }
+
+    /**
+     * 转义 LIKE 通配符，避免用户输入 %、_、\ 被当作 SQL 通配符处理。
+     */
+    private static String escapeLike(String value) {
+        return value
+                .replace("\\", "\\\\")
+                .replace("%", "\\%")
+                .replace("_", "\\_");
     }
 
     private LoginResponse issueToken(StoredUser user) {
@@ -192,5 +235,9 @@ public class AuthService {
             return "管理员";
         }
         return "买家";
+    }
+
+    private static boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
     }
 }

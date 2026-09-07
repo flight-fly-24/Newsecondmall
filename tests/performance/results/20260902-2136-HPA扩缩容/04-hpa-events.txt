@@ -1,0 +1,25 @@
+  Scale Up:
+    Stabilization Window: 0 seconds
+    Select Policy: Max
+    Policies:
+      - Type: Percent  Value: 100  Period: 30 seconds
+      - Type: Pods     Value: 2    Period: 30 seconds
+  Scale Down:
+    Stabilization Window: 300 seconds
+    Select Policy: Max
+    Policies:
+      - Type: Percent  Value: 50  Period: 60 seconds
+Deployment pods:       1 current / 1 desired
+Conditions:
+  Type            Status  Reason              Message
+  ----            ------  ------              -------
+  AbleToScale     True    ReadyForNewScale    recommended size matches current size
+  ScalingActive   True    ValidMetricFound    the HPA was able to successfully calculate a replica count from cpu resource utilization (percentage of request)
+  ScalingLimited  False   DesiredWithinRange  the desired count is within the acceptable range
+Events:
+  Type    Reason             Age                  From                       Message
+  ----    ------             ----                 ----                       -------
+  Normal  SuccessfulRescale  13m (x4 over 29h)    horizontal-pod-autoscaler  New size: 3; reason: cpu resource utilization (percentage of request) above target
+  Normal  SuccessfulRescale  13m (x4 over 29h)    horizontal-pod-autoscaler  New size: 4; reason: cpu resource utilization (percentage of request) above target
+  Normal  SuccessfulRescale  3m35s (x4 over 28h)  horizontal-pod-autoscaler  New size: 2; reason: All metrics below target
+  Normal  SuccessfulRescale  2m35s (x4 over 28h)  horizontal-pod-autoscaler  New size: 1; reason: All metrics below target

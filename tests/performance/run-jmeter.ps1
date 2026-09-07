@@ -1,6 +1,5 @@
 param(
-    [Parameter(Mandatory = $true)]
-    [string]$JMeterHome,
+    [string]$JMeterHome = $env:JMETER_HOME,
     [string]$HostName = '127.0.0.1',
     [int]$Port = 8080,
     [ValidateSet('http', 'https')]
@@ -11,6 +10,10 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+if ([string]::IsNullOrWhiteSpace($JMeterHome)) {
+    throw 'JMeter home is required. Set JMETER_HOME or pass -JMeterHome <path>.'
+}
+
 $jmeter = Join-Path $JMeterHome 'bin\jmeter.bat'
 if (-not (Test-Path -LiteralPath $jmeter)) {
     throw "JMeter executable not found: $jmeter"

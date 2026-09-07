@@ -10,7 +10,7 @@
 		</view>
 
 		<scroll-view class="msg-list" scroll-y :scroll-top="scrollTop" :show-scrollbar="false" @click="closeFloaters">
-			<view v-if="messages.length === 0" class="welcome">
+			<view v-if="screen === 'select'" class="welcome">
 				<view class="welcome-icon">👋</view>
 				<text class="welcome-title">你好！我是松果集市AI助手</text>
 				<text class="welcome-desc">我可以帮你解答以下问题：</text>
@@ -42,24 +42,26 @@
 				</view>
 			</view>
 
-			<view v-for="(msg, i) in messages" :key="i">
-				<view class="msg-row question">
-					<view class="msg-bubble q-bubble">{{ msg.q }}</view>
-					<view class="q-avatar">👤</view>
-				</view>
-				<view class="msg-row answer">
-					<view class="a-avatar">🤖</view>
-					<view class="msg-bubble a-bubble">
-						<rich-text v-if="isRichText(msg.a)" :nodes="mdToHtml(msg.a)" class="rich-answer"></rich-text>
-						<text v-else>{{ msg.a }}</text>
+			<view v-if="screen === 'chat'">
+				<view v-for="(msg, i) in messages" :key="i">
+					<view class="msg-row question">
+						<view class="msg-bubble q-bubble">{{ msg.q }}</view>
+						<view class="q-avatar">👤</view>
+					</view>
+					<view class="msg-row answer">
+						<view class="a-avatar">🤖</view>
+						<view class="msg-bubble a-bubble">
+							<rich-text v-if="isRichText(msg.a)" :nodes="mdToHtml(msg.a)" class="rich-answer"></rich-text>
+							<text v-else>{{ msg.a }}</text>
+						</view>
 					</view>
 				</view>
-			</view>
 
-			<view v-if="loading" class="msg-row answer">
-				<view class="a-avatar">🤖</view>
-				<view class="msg-bubble a-bubble thinking">
-					<text class="dot">.</text><text class="dot">.</text><text class="dot">.</text>
+				<view v-if="loading" class="msg-row answer">
+					<view class="a-avatar">🤖</view>
+					<view class="msg-bubble a-bubble thinking">
+						<text class="dot">.</text><text class="dot">.</text><text class="dot">.</text>
+					</view>
 				</view>
 			</view>
 		</scroll-view>
@@ -84,13 +86,28 @@ import { post } from '@/utils/request.js'
 export default {
 	data() {
 		return {
+			screen: 'select',
 			messages: [],
 			inputText: '',
 			loading: false,
 			scrollTop: 0
 		}
 	},
+	onBackPress() {
+		if (this.screen === 'chat') {
+			this.resetToSelect()
+			return true
+		}
+		return false
+	},
 	methods: {
+		resetToSelect() {
+			this.screen = 'select'
+			this.messages = []
+			this.loading = false
+			this.inputText = ''
+			this.scrollTop = 0
+		},
 		async sendQuestion() {
 			const text = this.inputText.trim()
 			if (!text || this.loading) return
@@ -99,6 +116,7 @@ export default {
 		},
 		async ask(question) {
 			if (this.loading) return
+			this.screen = 'chat'
 			this.loading = true
 			this.$nextTick(() => this.scrollToBottom())
 			try {
@@ -141,7 +159,15 @@ export default {
 		},
 		closeFloaters() {},
 		goBack() {
-			uni.navigateBack({fail:function(){uni.switchTab({url:"/pages/home/home"})}})
+			if (this.screen === 'chat') {
+				this.resetToSelect()
+				return
+			}
+			uni.navigateBack({
+				fail() {
+					uni.switchTab({ url: '/pages/home/home' })
+				}
+			})
 		}
 	}
 }
@@ -161,7 +187,7 @@ export default {
 	align-items: center;
 	gap: 12px;
 	padding: 16px 20px;
-	background: linear-gradient(135deg, #1a5c3e, #2d8a5e);
+	background: #1f5c43;
 	color: #fff;
 	flex-shrink: 0;
 }

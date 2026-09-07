@@ -1,1 +1,11 @@
-results/
+# JMeter 原始采样结果体积较大，不入库；需要复现时重新运行脚本生成
+*.jtl
+
+# 本机 JMeter 压测会为每轮生成完整 HTML 报告和日志，作为本地实验
+# 证据保留，但不提交到仓库。服务器侧已纳入版本控制的汇总结果不受影响。
+results/catalog-*/
+results/store-*/
+results/login-*/
+results/resource-*/
+
+# 允许提交 results/ 下的汇总报告（CSV / Markdown / HTML），详见 results/README.md

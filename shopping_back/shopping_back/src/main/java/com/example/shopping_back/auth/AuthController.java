@@ -63,6 +63,7 @@ public class AuthController {
         if (v.regionMatches(true, 0, "Bearer ", 0, 7)) {
             return v.substring(7).trim();
         }
-        return v;
+        // 不携带合法的 Bearer 前缀一律视为未携带 Token
+        return null;
     }
 }

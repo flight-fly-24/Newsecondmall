@@ -1,0 +1,298 @@
+-- =============================================================================
+-- V002__seed_data.sql
+-- 描述: 松果集市 - 基础测试/演示数据
+-- 依赖: V001__init_schema.sql 必须先执行
+-- 注意事项:
+--   1. 全部使用 INSERT ... ON DUPLICATE KEY UPDATE，幂等
+--   2. 密码 hash 为 BCrypt:
+--        demo        / demo123
+--        seller      / seller123
+--        admin       / admin123
+--        life_seller / seller123
+--        book_seller / seller123
+--   3. SQL 中包含 ensure_column 工具过程（兼容旧库升级用），本版本不需要调用
+-- =============================================================================
+
+USE `shop_db`;
+
+-- ----------------------------------------------------------------------------
+-- ensure_column 工具：旧库升级时按需补列（本版本可直接忽略）
+-- ----------------------------------------------------------------------------
+DROP PROCEDURE IF EXISTS `ensure_column`;
+DELIMITER //
+CREATE PROCEDURE `ensure_column`(
+    IN p_table_name VARCHAR(64),
+    IN p_column_name VARCHAR(64),
+    IN p_column_definition TEXT
+)
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1
+        FROM information_schema.COLUMNS
+        WHERE TABLE_SCHEMA = DATABASE()
+          AND TABLE_NAME = p_table_name
+          AND COLUMN_NAME = p_column_name
+    ) THEN
+        SET @ddl = CONCAT('ALTER TABLE `', p_table_name, '` ADD COLUMN ', p_column_definition);
+        PREPARE stmt FROM @ddl;
+        EXECUTE stmt;
+        DEALLOCATE PREPARE stmt;
+    END IF;
+END//
+DELIMITER ;
+
+-- 兼容旧库（如果列已存在则什么都不做）
+CALL `ensure_column`('users', 'role', '`role` VARCHAR(20) NOT NULL DEFAULT ''buyer''');
+CALL `ensure_column`('users', 'status', '`status` VARCHAR(20) NOT NULL DEFAULT ''normal''');
+CALL `ensure_column`('users', 'avatar_url', '`avatar_url` VARCHAR(500) DEFAULT NULL');
+
+CALL `ensure_column`('goods', 'seller_id', '`seller_id` INT NOT NULL DEFAULT 2');
+CALL `ensure_column`('goods', 'goods_name', '`goods_name` VARCHAR(255) NOT NULL DEFAULT ''-''');
+CALL `ensure_column`('goods', 'category', '`category` VARCHAR(100) DEFAULT NULL');
+CALL `ensure_column`('goods', 'goods_desc', '`goods_desc` TEXT');
+CALL `ensure_column`('goods', 'goods_condition', '`goods_condition` VARCHAR(100) DEFAULT NULL');
+CALL `ensure_column`('goods', 'story', '`story` TEXT');
+CALL `ensure_column`('goods', 'price', '`price` DECIMAL(10,02) NOT NULL DEFAULT 0');
+CALL `ensure_column`('goods', 'floor_price', '`floor_price` DECIMAL(10,02) DEFAULT NULL');
+CALL `ensure_column`('goods', 'scene', '`scene` VARCHAR(20) NOT NULL DEFAULT ''used''');
+CALL `ensure_column`('goods', 'address', '`address` VARCHAR(255) DEFAULT NULL');
+CALL `ensure_column`('goods', 'image', '`image` TEXT');
+CALL `ensure_column`('goods', 'status', '`status` VARCHAR(20) NOT NULL DEFAULT ''approved''');
+CALL `ensure_column`('goods', 'reject_reason', '`reject_reason` VARCHAR(255) DEFAULT NULL');
+CALL `ensure_column`('goods', 'reviewed_at', '`reviewed_at` DATETIME DEFAULT NULL');
+CALL `ensure_column`('goods', 'create_time', '`create_time` DATETIME DEFAULT CURRENT_TIMESTAMP');
+
+CALL `ensure_column`('topic_post', 'product_id', '`product_id` INT DEFAULT NULL');
+CALL `ensure_column`('topic_post', 'store_id', '`store_id` INT DEFAULT NULL');
+
+CALL `ensure_column`('chat_message', 'type', '`type` VARCHAR(30) NOT NULL DEFAULT ''CHAT_MESSAGE''');
+
+ALTER TABLE `goods`
+    MODIFY COLUMN `status` VARCHAR(20) NOT NULL DEFAULT 'approved';
+
+CALL `ensure_column`('store', 'seller_id', '`seller_id` INT NOT NULL DEFAULT 2');
+CALL `ensure_column`('store', 'store_name', '`store_name` VARCHAR(100) NOT NULL DEFAULT ''-''');
+CALL `ensure_column`('store', 'status', '`status` VARCHAR(20) NOT NULL DEFAULT ''normal''');
+CALL `ensure_column`('store', 'score', '`score` DECIMAL(3,1) NOT NULL DEFAULT 4.8');
+CALL `ensure_column`('store', 'credit_score', '`credit_score` INT NOT NULL DEFAULT 100');
+CALL `ensure_column`('store', 'violation_count', '`violation_count` INT NOT NULL DEFAULT 0');
+CALL `ensure_column`('store', 'store_desc', '`store_desc` VARCHAR(500) DEFAULT NULL');
+CALL `ensure_column`('store', 'badge', '`badge` VARCHAR(60) DEFAULT NULL');
+CALL `ensure_column`('store', 'service_tags', '`service_tags` VARCHAR(255) DEFAULT NULL');
+CALL `ensure_column`('store', 'created_at', '`created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP');
+
+DROP PROCEDURE IF EXISTS `ensure_column`;
+
+-- ----------------------------------------------------------------------------
+-- follow_store 去重 + 唯一键
+-- ----------------------------------------------------------------------------
+DELETE f1 FROM `follow_store` f1
+JOIN `follow_store` f2
+  ON f1.`user_id` = f2.`user_id`
+ AND f1.`store_id` = f2.`store_id`
+ AND f1.`id` > f2.`id`;
+
+SET @follow_unique_exists := (
+    SELECT COUNT(*)
+    FROM information_schema.STATISTICS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'follow_store'
+      AND INDEX_NAME = 'uk_follow_user_store'
+);
+SET @follow_unique_sql := IF(
+    @follow_unique_exists = 0,
+    'ALTER TABLE `follow_store` ADD UNIQUE KEY `uk_follow_user_store` (`user_id`, `store_id`)',
+    'SELECT 1'
+);
+PREPARE follow_unique_stmt FROM @follow_unique_sql;
+EXECUTE follow_unique_stmt;
+DEALLOCATE PREPARE follow_unique_stmt;
+
+-- ----------------------------------------------------------------------------
+-- 默认用户
+-- ----------------------------------------------------------------------------
+UPDATE `users`
+SET `username` = CONCAT(`username`, '_', `user_id`)
+WHERE `username` IN ('demo', 'seller', 'admin', 'life_seller', 'book_seller')
+  AND `user_id` NOT IN (1, 2, 3, 4, 5);
+
+INSERT INTO `users` (`user_id`, `username`, `password_hash`, `phone`, `credit`, `role`, `status`)
+VALUES
+    (1, 'demo',        '$2a$10$PHFjrb52oM7qB7uBtDvIQuStxmQNjLJl2HEMmIYINTvPD1JDTQd0u', '13800138000', 100, 'buyer',  'normal'),
+    (2, 'seller',      '$2a$10$HTaLKmKv.9oAaH6Y/9Pc.ODCxiXddLzVZyiStWmOjJOTOn8tcdqUW', '13700000000',  99, 'seller', 'normal'),
+    (3, 'admin',       '$2a$10$e4sV.5OgJ9rj.vHi0x9WXOrlXwedmpUS.BEAsaN9t3l2luoPY1VN6', '13900000000', 100, 'admin',  'normal'),
+    (4, 'life_seller', '$2a$10$HTaLKmKv.9oAaH6Y/9Pc.ODCxiXddLzVZyiStWmOjJOTOn8tcdqUW', '13600000000',  96, 'seller', 'normal'),
+    (5, 'book_seller', '$2a$10$HTaLKmKv.9oAaH6Y/9Pc.ODCxiXddLzVZyiStWmOjJOTOn8tcdqUW', '13500000000',  98, 'seller', 'normal')
+ON DUPLICATE KEY UPDATE
+    `username`      = VALUES(`username`),
+    `password_hash` = VALUES(`password_hash`),
+    `phone`         = VALUES(`phone`),
+    `credit`        = VALUES(`credit`),
+    `role`          = VALUES(`role`),
+    `status`        = VALUES(`status`);
+
+-- ----------------------------------------------------------------------------
+-- 店铺
+-- ----------------------------------------------------------------------------
+INSERT INTO `store` (`store_id`, `seller_id`, `store_name`, `status`, `score`, `credit_score`, `violation_count`, `store_desc`, `badge`, `service_tags`)
+VALUES
+    (1, 2, '松果严选数码', 'normal', 4.9, 100, 0, '主营数码影音、学习设备和官方严选配件，商品经过平台记录，适合学生与通勤用户。', '官方严选', '正品保障,平台担保,快速发货,售后响应'),
+    (2, 5, '南湖旧书摊',   'normal', 4.8,  99, 0, '课程教材、考研资料、专业笔记和图书文创集中流转，适合校园面交与低成本复习。', '校园认证', '真实笔记,校园面交,平台担保,可拍内页'),
+    (3, 4, '榕树下的小店', 'normal', 4.7,  96, 0, '家居生活、桌面用品和二手闲置为主，强调真实成色、同城沟通和稳定售后。', '信用卖家', '同城优先,真实描述,议价空间,平台担保')
+ON DUPLICATE KEY UPDATE
+    `seller_id`       = VALUES(`seller_id`),
+    `store_name`      = VALUES(`store_name`),
+    `status`          = VALUES(`status`),
+    `score`           = VALUES(`score`),
+    `credit_score`    = VALUES(`credit_score`),
+    `violation_count` = VALUES(`violation_count`),
+    `store_desc`      = VALUES(`store_desc`),
+    `badge`           = VALUES(`badge`),
+    `service_tags`    = VALUES(`service_tags`);
+
+-- ----------------------------------------------------------------------------
+-- 商品
+-- ----------------------------------------------------------------------------
+INSERT INTO `goods` (`goods_id`, `seller_id`, `goods_name`, `category`, `goods_desc`, `goods_condition`, `story`, `price`, `floor_price`, `scene`, `address`, `image`, `status`, `reviewed_at`)
+VALUES
+    (1001, 2, 'AirWave Pro 降噪耳机',     '数码影音',  '全新正品，45dB 主动降噪，38 小时续航，适合通勤、自习和线上会议。',         '全新',    '官方严选新品，支持一年质保和平台担保。',           699.00, 659.00, 'new',  '上海',         '/static/goods/airwave-pro.jpg',   'approved', NOW()),
+    (1002, 2, '松果 Pad 11 学习平板',      '数码影音',  '11 英寸 2.5K 护眼屏，8GB+256GB，适合网课、笔记和轻办公。',                '全新',    '新品首发，赠保护套，适合开学季学习场景。',          2299.00, 2199.00, 'new',  '杭州',         '/static/goods/songuo-pad.jpg',    'approved', NOW()),
+    (1003, 2, 'ViewTop 27 英寸 2K 显示器', '数码影音',  '二手 9 成新，无坏点，HDMI/DP 接口齐全，支持当面验货。',                  '9 成新',  '上一任主人用于设计作业和剪辑练习，屏幕状态稳定，现桌面升级转让。', 680.00, 620.00, 'used', '广州大学城',   '/static/goods/viewtop-monitor.jpg','approved', NOW()),
+    (1004, 5, '软件工程导论与项目管理笔记', '学习资料',  '二手教材，含重点标注和课程项目复习提纲，适合期末复习。',                  '8.5 成新','上任主人用它完成软工课程项目，夹带需求评审清单和测试用例模板。', 18.00, 15.00, 'used', '武汉',         '/static/goods/software-book.jpg', 'approved', NOW()),
+    (1005, 4, '人体工学椅 Pro',           '家居生活',  '二手 9 成新，腰托完整，坐垫回弹正常，适合宿舍或工位。',                   '9 成新',  '陪伴过多个项目冲刺，椅背和扶手状态良好，搬家出闲置。', 420.00, 380.00, 'used', '成都',         '/static/goods/ergo-chair.jpg',    'approved', NOW()),
+    (1006, 4, '折叠护眼台灯',             '家居生活',  '全新护眼台灯，USB-C 供电，三档色温，宿舍桌面友好。',                     '全新',    '新品卖点围绕护眼、便携和收纳，适合夜间阅读。',      89.00, 79.00, 'new',  '深圳',         '/static/goods/desk-lamp.jpg',     'approved', NOW()),
+    (1007, 2, '蓝牙机械键盘 K68',         '数码影音',  '全新 68 键蓝牙机械键盘，三模连接，适合宿舍桌搭。',                      '全新',    '新品现货，轻巧布局，兼顾平板和电脑输入。',         199.00, 179.00, 'new',  '上海',         '/static/goods/airwave-pro.jpg',   'approved', NOW()),
+    (1008, 5, '高数复习讲义套装',          '图书文创',  '二手复习讲义，章节标注完整，附往年题型整理。',                          '8 成新', '学长考前整理资料，适合快速查漏补缺。',            26.00, 20.00, 'used', '武汉',         '/static/goods/software-book.jpg', 'approved', NOW())
+ON DUPLICATE KEY UPDATE
+    `seller_id`       = VALUES(`seller_id`),
+    `goods_name`      = VALUES(`goods_name`),
+    `category`        = VALUES(`category`),
+    `goods_desc`      = VALUES(`goods_desc`),
+    `goods_condition` = VALUES(`goods_condition`),
+    `story`           = VALUES(`story`),
+    `price`           = VALUES(`price`),
+    `floor_price`     = VALUES(`floor_price`),
+    `scene`           = VALUES(`scene`),
+    `address`         = VALUES(`address`),
+    `image`           = VALUES(`image`),
+    `status`          = VALUES(`status`),
+    `reviewed_at`     = VALUES(`reviewed_at`);
+
+-- ----------------------------------------------------------------------------
+-- 订单 / 评价
+-- ----------------------------------------------------------------------------
+INSERT INTO `orders` (`order_id`, `buyer_id`, `seller_id`, `goods_id`, `status`, `amount`)
+VALUES
+    (9001, 1, 2, 1003, 'completed', 680.00),
+    (9002, 1, 5, 1004, 'completed',  18.00),
+    (9003, 1, 4, 1005, 'completed', 420.00)
+ON DUPLICATE KEY UPDATE
+    `buyer_id`  = VALUES(`buyer_id`),
+    `seller_id` = VALUES(`seller_id`),
+    `goods_id`  = VALUES(`goods_id`),
+    `status`    = VALUES(`status`),
+    `amount`    = VALUES(`amount`);
+
+INSERT INTO `product_review` (`review_id`, `order_id`, `goods_id`, `buyer_id`, `seller_id`, `product_score`, `seller_score`, `content`)
+VALUES
+    (9101, 9001, 1003, 1, 2, 5, 5, '显示器和描述一致，屏幕没有坏点，卖家沟通很及时，当面验货很顺利。'),
+    (9102, 9002, 1004, 1, 5, 4, 5, '教材重点标注很清楚，复习提纲有帮助，书角有轻微磨损但不影响使用。')
+ON DUPLICATE KEY UPDATE
+    `product_score` = VALUES(`product_score`),
+    `seller_score`  = VALUES(`seller_score`),
+    `content`       = VALUES(`content`);
+
+UPDATE `users` u
+JOIN (
+    SELECT `seller_id`, ROUND(AVG(`seller_score`) * 20) AS `credit_value`
+    FROM `product_review`
+    GROUP BY `seller_id`
+) r ON r.`seller_id` = u.`user_id`
+SET u.`credit` = r.`credit_value`;
+
+UPDATE `store` s
+JOIN (
+    SELECT `seller_id`, ROUND(AVG(`seller_score`), 1) AS `score_value`, ROUND(AVG(`seller_score`) * 20) AS `credit_value`
+    FROM `product_review`
+    GROUP BY `seller_id`
+) r ON r.`seller_id` = s.`seller_id`
+SET s.`score` = r.`score_value`, s.`credit_score` = r.`credit_value`;
+
+-- ----------------------------------------------------------------------------
+-- 话题社区
+-- ----------------------------------------------------------------------------
+INSERT INTO `community_topic` (`topic_id`, `type`, `title`, `topic_desc`, `author`, `cover`, `tags`, `status`)
+VALUES
+    (7001, '新品推荐',     '开学新品推荐：哪些数码配件真正提升效率？', '围绕耳机、平板、键盘、台灯等新品，讨论真实使用体验、预算区间和避坑点。',       '松果编辑部',   '/static/goods/songuo-pad.jpg',   '新品推荐,数码影音,学生党,效率工具',  'normal'),
+    (7002, '宿舍好物推荐', '宿舍好物推荐：桌面、收纳和二手小家具合集', '分享宿舍里真正用得上的好物，也欢迎晒出自己的桌搭和改造经验。',                 '宿舍改造小组', '/static/goods/ergo-chair.jpg',   '宿舍好物,家居生活,二手闲置,桌搭',    'normal'),
+    (7003, '防晒避雷帖',   '防晒避雷帖：夏季通勤和军训怎么选才不踩坑？', '防晒、遮阳、清洁和晒后修护相关经验集中讨论，少花冤枉钱。',                     '生活经验社',   '/static/goods/desk-lamp.jpg',    '防晒避雷,生活经验,新品推荐,避坑',    'normal'),
+    (7004, '学习资料合集', '期末和考研资料流转：哪些资料值得买二手？',   '教材、讲义、笔记和题集的购买经验与资料交换讨论。',                            '南湖旧书摊',   '/static/goods/software-book.jpg','学习资料,图书文创,二手闲置,期末复习', 'normal')
+ON DUPLICATE KEY UPDATE
+    `type`       = VALUES(`type`),
+    `title`      = VALUES(`title`),
+    `topic_desc` = VALUES(`topic_desc`),
+    `author`     = VALUES(`author`),
+    `cover`      = VALUES(`cover`),
+    `tags`       = VALUES(`tags`),
+    `status`     = VALUES(`status`);
+
+INSERT INTO `topic_post` (`post_id`, `topic_id`, `user_id`, `product_id`, `store_id`, `content`, `images`)
+VALUES
+    (7201, 7001, 1, 1007, 1, '刚换了 68 键蓝牙键盘，宿舍桌面一下清爽很多。建议优先看连接稳定性和键帽高度，别只看颜值。',                '/static/goods/airwave-pro.jpg'),
+    (7202, 7002, 1, 1005, 3, '二手人体工学椅真的要当面试坐，腰托和升降比外观更重要。我的经验是先问使用年限，再看底盘有没有异响。', '/static/goods/ergo-chair.jpg'),
+    (7203, 7003, 1, NULL, NULL, '防晒别盲目囤大瓶，通勤和运动需求不一样。大家可以把空瓶体验和踩雷点发在这里，后面买的人少踩坑。',     ''),
+    (7204, 7004, 1, 1004, 2, '软件工程课本如果带项目笔记会很值，单纯教材就看价格。买之前可以让卖家拍目录和重点页。',                 '/static/goods/software-book.jpg')
+ON DUPLICATE KEY UPDATE
+    `topic_id`   = VALUES(`topic_id`),
+    `user_id`    = VALUES(`user_id`),
+    `product_id` = VALUES(`product_id`),
+    `store_id`   = VALUES(`store_id`),
+    `content`    = VALUES(`content`),
+    `images`     = VALUES(`images`);
+
+INSERT INTO `topic_comment` (`comment_id`, `post_id`, `user_id`, `content`)
+VALUES
+    (7301, 7201, 2, '同意，三模切换稳定比灯效重要多了。'),
+    (7302, 7202, 5, '椅子还要看轮子，宿舍地面不平的话很影响体验。'),
+    (7303, 7204, 2, '资料类最好让卖家说明有没有缺页和水渍。')
+ON DUPLICATE KEY UPDATE
+    `post_id` = VALUES(`post_id`),
+    `user_id`  = VALUES(`user_id`),
+    `content`  = VALUES(`content`);
+
+INSERT IGNORE INTO `topic_post_like` (`post_id`, `user_id`)
+VALUES
+    (7201, 1),
+    (7201, 2),
+    (7202, 1),
+    (7204, 1);
+
+INSERT IGNORE INTO `topic_post_action` (`post_id`, `user_id`, `action_type`)
+VALUES
+    (7201, 2, 'want'),
+    (7201, 1, 'collect'),
+    (7202, 5, 'want'),
+    (7204, 2, 'collect');
+
+INSERT INTO `cart_item` (`cart_id`, `user_id`, `goods_id`, `quantity`, `selected`)
+VALUES
+    (1, 1, 1001, 1, 1),
+    (2, 1, 1004, 2, 1),
+    (3, 1, 1006, 1, 0)
+ON DUPLICATE KEY UPDATE
+    `goods_id` = VALUES(`goods_id`),
+    `quantity` = VALUES(`quantity`),
+    `selected` = VALUES(`selected`);
+
+INSERT INTO `user_address` (`address_id`, `user_id`, `receiver`, `phone`, `province`, `city`, `district`, `detail`, `is_default`)
+VALUES
+    (1, 1, '何同学', '13800138000', '广东省', '广州市', '番禺区', '大学城华南理工大学宿舍区 3 栋 502', 1),
+    (2, 1, '何同学', '13800138000', '湖北省', '武汉市', '洪山区', '珞瑜路 1037 号华中科技大学',        0)
+ON DUPLICATE KEY UPDATE
+    `receiver`  = VALUES(`receiver`),
+    `phone`     = VALUES(`phone`),
+    `province`  = VALUES(`province`),
+    `city`      = VALUES(`city`),
+    `district`  = VALUES(`district`),
+    `detail`    = VALUES(`detail`),
+    `is_default`= VALUES(`is_default`);

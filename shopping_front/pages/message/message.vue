@@ -39,17 +39,28 @@
 						<input v-model="keyword" class="search-input" placeholder="搜索联系人或商品" />
 					</view>
 
-					<scroll-view class="conversation-list" scroll-y :show-scrollbar="false">
+					<scroll-view class="conversation-list" scroll-y :show-scrollbar="false" @scroll="closeContextMenu">
 						<view
 							v-for="item in filteredList"
 							:key="item.covId"
 							class="conversation-item"
 							:class="{ active: item.covId === covId }"
+							:data-cov-id="item.covId"
 							@click="open(item)"
+							@contextmenu.prevent="openContextMenu($event, item)"
+							@longpress="openContextMenu($event, item)"
 						>
 							<view class="avatar-wrap">
-								<image v-if="item.goodsImageUrl" class="avatar-img" :src="item.goodsImageUrl" mode="aspectFill"></image>
-								<view v-else class="avatar">{{ item.icon }}</view>
+								<image
+									v-if="item.coverUrl"
+									class="avatar-img"
+									:src="item.coverUrl"
+									mode="aspectFill"
+									@error="onConversationCoverError(item)"
+								></image>
+								<view v-else class="avatar">
+									<text class="avatar-letter">{{ item.icon }}</text>
+								</view>
 								<text v-if="item.unreadCount > 0" class="badge">{{ item.unreadCount }}</text>
 							</view>
 							<view class="conversation-main">
@@ -90,7 +101,7 @@
 								</template>
 							</view>
 						</view>
-						<scroll-view class="messages" scroll-y :scroll-top="scrollTop" :show-scrollbar="false">
+						<scroll-view data-testid="chat-messages" class="messages" scroll-y :scroll-top="scrollTop" :show-scrollbar="false">
 							<view class="session-tip">
 								<view class="line"></view>
 								<text>上次聊到这里</text>
@@ -122,7 +133,7 @@
 										</view>
 										<view v-else class="bubble" :class="{ 'ai-bubble': msg.type === 'AI_REPLY' }">
 											<text v-if="msg.type === 'AI_REPLY'" class="ai-tag">AI</text>
-											<text>{{ msg.content }}</text>
+											<text data-testid="chat-message-content">{{ msg.content }}</text>
 										</view>
 										<text v-if="msg.senderId === myUserId" class="read-receipt">
 											{{ msg.isRead ? '已读' : '未读' }}
@@ -146,7 +157,7 @@
 							</view>
 						</scroll-view>
 
-						<view class="composer" @click.stop>
+						<view data-testid="chat-composer" :data-conversation-ready="Boolean(covId)" class="composer" @click.stop>
 							<view v-if="showEmojiPicker" class="emoji-panel">
 								<view class="emoji-title">{{ currentEmojiGroupName }}</view>
 								<scroll-view class="emoji-grid" scroll-y :show-scrollbar="false">
@@ -176,6 +187,7 @@
 								<text class="counter">{{ inputContent.length }} / 500</text>
 							</view>
 							<textarea
+								data-testid="chat-input"
 								v-model="inputContent"
 								class="message-input"
 								maxlength="500"
@@ -184,7 +196,7 @@
 							></textarea>
 							<view class="composer-actions">
 								<button class="send-btn secondary" @click="viewProduct">查看宝贝</button>
-								<button class="send-btn" @click="sendMessage">发送</button>
+								<button data-testid="chat-send" class="send-btn" @click="sendMessage">发送</button>
 							</view>
 						</view>
 					</template>
@@ -196,6 +208,25 @@
 				</view>
 			</view>
 		</view>
+
+		<view
+			v-if="contextMenu.visible"
+			class="context-menu-mask"
+			@click="closeContextMenu"
+			@tap="closeContextMenu"
+			@contextmenu.prevent="closeContextMenu"
+		>
+			<view
+				class="context-menu"
+				:style="{ left: contextMenu.x + 'px', top: contextMenu.y + 'px' }"
+				@click.stop
+				@tap.stop
+			>
+				<view class="context-menu-item danger" hover-class="context-menu-item-active" @click.stop="onContextDelete">
+					删除对话
+				</view>
+			</view>
+		</view>
 	</view>
 </template>
 
@@ -203,11 +234,12 @@
 	import { fetchProduct, requestAiAssist } from '@/services/shop.js'
 		// #ifdef H5
 	import SockJS from 'sockjs-client'
-	import Stomp from 'stompjs'
+	import Stomp from 'stompjs/lib/stomp.js'
 		// #endif
 	import { fetchMe } from '@/services/auth.js'
-	import { get, post, put } from '@/utils/request.js'
+	import { get, post, put, del } from '@/utils/request.js'
 	import { getToken } from '@/utils/auth.js'
+	import { isImageUrl, resolveImageUrl } from '@/utils/media.js'
 
 	const WS_URL = 'http://127.0.0.1:8080/ws'
 	const PRODUCT_CARD_PREFIX = '__PRODUCT_CARD__'
@@ -232,6 +264,13 @@
 				aiBargaining: false,
 				connected: false,
 				conversationTransferred: false,
+				deletingCovId: null,
+				contextMenu: {
+					visible: false,
+					x: 0,
+					y: 0,
+					item: null
+				},
 				pollTimer: null,
 				scrollTop: 0,
 				showEmojiPicker: false,
@@ -274,14 +313,78 @@
 			this.fetchConversationList()
 		},
 		onHide() {
+			this.closeContextMenu()
 			this.disconnect()
 		},
 		onUnload() {
+			this.closeContextMenu()
 			this.disconnect()
+		},
+		mounted() {
+			// #ifdef H5
+			this._onNativeContextMenu = (e) => {
+				const target = e.target && e.target.closest ? e.target.closest('.conversation-item') : null
+				if (!target) {
+					this.closeContextMenu()
+					return
+				}
+				e.preventDefault()
+				const covId = Number(target.getAttribute('data-cov-id'))
+				const item = this.filteredList.find(row => Number(row.covId) === covId)
+					|| this.list.find(row => Number(row.covId) === covId)
+				if (item) this.openContextMenu(e, item)
+			}
+			document.addEventListener('contextmenu', this._onNativeContextMenu)
+			// #endif
+		},
+		beforeUnmount() {
+			// #ifdef H5
+			if (this._onNativeContextMenu) {
+				document.removeEventListener('contextmenu', this._onNativeContextMenu)
+			}
+			// #endif
 		},
 		methods: {
 			closeFloaters() {
 				this.showEmojiPicker = false
+				this.closeContextMenu()
+			},
+			eventPoint(e) {
+				if (!e) return { x: 16, y: 16 }
+				if (typeof e.clientX === 'number') return { x: e.clientX, y: e.clientY }
+				const touch = (e.touches && e.touches[0]) || (e.changedTouches && e.changedTouches[0])
+				if (touch && typeof touch.clientX === 'number') return { x: touch.clientX, y: touch.clientY }
+				const detail = e.detail || {}
+				if (typeof detail.clientX === 'number') return { x: detail.clientX, y: detail.clientY }
+				if (typeof detail.x === 'number') return { x: detail.x, y: detail.y }
+				return { x: 16, y: 16 }
+			},
+			openContextMenu(e, item) {
+				if (!item) return
+				const ev = e && typeof e.preventDefault === 'function' ? e : e
+				if (ev && typeof ev.preventDefault === 'function') ev.preventDefault()
+				if (ev && typeof ev.stopPropagation === 'function') ev.stopPropagation()
+				const point = this.eventPoint(e)
+				const menuWidth = 148
+				const menuHeight = 44
+				const pad = 8
+				const maxX = (typeof window !== 'undefined' ? window.innerWidth : 375) - menuWidth - pad
+				const maxY = (typeof window !== 'undefined' ? window.innerHeight : 667) - menuHeight - pad
+				this.contextMenu = {
+					visible: true,
+					x: Math.max(pad, Math.min(point.x, maxX)),
+					y: Math.max(pad, Math.min(point.y, maxY)),
+					item
+				}
+			},
+			closeContextMenu() {
+				if (!this.contextMenu.visible) return
+				this.contextMenu = { visible: false, x: 0, y: 0, item: null }
+			},
+			onContextDelete() {
+				const item = this.contextMenu.item
+				this.closeContextMenu()
+				this.confirmDelete(item)
 			},
 			appendText(text) {
 				this.inputContent = `${this.inputContent}${text}`.slice(0, 500)
@@ -319,6 +422,7 @@
 						covId: item.covId,
 						unreadCount: item.unreadCount || 0,
 						goodsImageUrl: item.goodsImageUrl,
+						coverUrl: this.conversationCover(item.goodsImageUrl),
 						goodsName: item.goodsName,
 						goodsId: item.goodsId,
 							status: item.status || 'ai'
@@ -362,6 +466,48 @@
 					await this.initChat()
 					// #endif
 				},
+			confirmDelete(item) {
+				const covId = item && item.covId
+				if (!covId || this.deletingCovId) return
+				uni.showModal({
+					title: '删除对话',
+					content: '删除后聊天记录无法恢复，确定删除吗？',
+					confirmText: '删除',
+					confirmColor: '#b91c1c',
+					success: (res) => {
+						if (res.confirm) this.deleteConversation(covId)
+					}
+				})
+			},
+			async deleteConversation(covId) {
+				if (!covId || this.deletingCovId) return
+				this.deletingCovId = covId
+				try {
+					await del(`/api/chat/conversations/${covId}`)
+					this.list = this.list.filter(item => Number(item.covId) !== Number(covId))
+					if (Number(this.covId) === Number(covId)) {
+						this.clearOpenConversation()
+					}
+					uni.showToast({ title: '对话已删除', icon: 'none' })
+				} catch (e) {
+					console.error('删除会话失败', e)
+					uni.showToast({ title: '删除失败', icon: 'none' })
+				} finally {
+					this.deletingCovId = null
+				}
+			},
+			clearOpenConversation() {
+				this.disconnect()
+				this.stopPolling()
+				this.connected = false
+				this.stompClient = null
+				this.covId = null
+				this.messages = []
+				this.inputContent = ''
+				this.focusProduct = null
+				this.conversationTransferred = false
+				this.closeFloaters()
+			},
 			navTo(url) {
 				if (['/pages/home/home', '/pages/browse/browse', '/pages/cart/cart', '/pages/message/message', '/pages/user/index'].includes(url)) {
 					uni.switchTab({ url })
@@ -374,6 +520,12 @@
 			},
 			avatarText(name) {
 				return String(name || '聊').slice(0, 1).toUpperCase()
+			},
+			conversationCover(url) {
+				return isImageUrl(url) ? resolveImageUrl(url) : ''
+			},
+			onConversationCoverError(item) {
+				if (item) item.coverUrl = ''
 			},
 			formatTime(dateStr) {
 				if (!dateStr) return ''
@@ -573,6 +725,8 @@
 				// 避免 STOMP send 静默失败导致消息丢失
 				try {
 					await post(`/api/chat/conversations/${this.covId}/messages`, payload)
+					// REST 已确认写入后立即刷新，避免 WebSocket 尚未连接时界面漏掉自己的消息。
+					await this.refreshHistory()
 					return true
 				} catch (error) {
 					console.error('消息发送失败', error)
@@ -881,6 +1035,8 @@
 		border-radius: 8px;
 		border: 1px solid transparent;
 		box-sizing: border-box;
+		user-select: none;
+		-webkit-user-select: none;
 		transition: background .18s ease, border-color .18s ease, transform .18s ease;
 	}
 	.conversation-item:hover,
@@ -913,6 +1069,14 @@
 		width: 46px;
 		height: 46px;
 		border-radius: 8px;
+		overflow: hidden;
+		box-sizing: border-box;
+	}
+	.avatar-letter {
+		font-size: 18px;
+		font-weight: 900;
+		color: #12372a;
+		line-height: 1;
 	}
 	.badge {
 		position: absolute;
@@ -932,6 +1096,38 @@
 	.conversation-main {
 		flex: 1;
 		min-width: 0;
+	}
+	.context-menu-mask {
+		position: fixed;
+		inset: 0;
+		z-index: 80;
+	}
+	.context-menu {
+		position: fixed;
+		min-width: 148px;
+		padding: 6px;
+		border-radius: 10px;
+		background: #fff;
+		border: 1px solid #e5e7eb;
+		box-shadow: 0 10px 28px rgba(15, 23, 42, 0.12);
+		box-sizing: border-box;
+	}
+	.context-menu-item {
+		height: 36px;
+		padding: 0 12px;
+		display: flex;
+		align-items: center;
+		border-radius: 7px;
+		font-size: 13px;
+		font-weight: 700;
+		color: #334155;
+	}
+	.context-menu-item.danger {
+		color: #b91c1c;
+	}
+	.context-menu-item-active,
+	.context-menu-item.danger:hover {
+		background: #fef2f2;
 	}
 	.conversation-head {
 		display: flex;
@@ -966,8 +1162,9 @@
 		color: #12372a;
 	}
 	.chat-header {
-		height: 72px;
-		padding: 0 22px;
+		min-height: 72px;
+		height: auto;
+		padding: 12px 22px;
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
@@ -975,6 +1172,7 @@
 		border-bottom: 1px solid #e5e7eb;
 		box-sizing: border-box;
 		flex-shrink: 0;
+		gap: 12px;
 	}
 	.chat-contact {
 		display: flex;
@@ -987,6 +1185,7 @@
 		height: 42px;
 		border-radius: 10px;
 		flex-shrink: 0;
+		font-size: 16px;
 	}
 	.chat-title,
 	.chat-subtitle {

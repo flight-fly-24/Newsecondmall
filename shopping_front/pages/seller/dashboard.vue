@@ -282,7 +282,7 @@
 
 <script>
 import SockJS from 'sockjs-client'
-import Stomp from 'stompjs'
+import Stomp from 'stompjs/lib/stomp.js'
 import { clearSession, getCachedUser, getToken } from '@/utils/auth.js'
 import { fetchMe } from '@/services/auth.js'
 import { cancelSellerRealName, fetchSellerCenter, submitSellerRealName } from '@/services/center.js'

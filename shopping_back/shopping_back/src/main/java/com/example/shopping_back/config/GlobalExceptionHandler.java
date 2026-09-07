@@ -3,7 +3,9 @@ package com.example.shopping_back.config;
 import com.example.shopping_back.common.dto.ApiResult;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
@@ -24,6 +26,16 @@ public class GlobalExceptionHandler {
                 .map(err -> err.getField() + ": " + err.getDefaultMessage())
                 .orElse("Validation failed");
         return ResponseEntity.badRequest().body(ApiResult.fail(400, msg));
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiResult<Void>> handleUnreadable(HttpMessageNotReadableException ex) {
+        return ResponseEntity.badRequest().body(ApiResult.fail(400, "请求体不能为空或格式错误"));
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ApiResult<Void>> handleMissingParam(MissingServletRequestParameterException ex) {
+        return ResponseEntity.badRequest().body(ApiResult.fail(400, "缺少参数: " + ex.getParameterName()));
     }
 
     @ExceptionHandler(Exception.class)

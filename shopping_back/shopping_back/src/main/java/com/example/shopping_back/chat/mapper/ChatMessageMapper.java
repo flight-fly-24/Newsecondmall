@@ -73,5 +73,8 @@ public interface ChatMessageMapper {
 
     @Update("UPDATE chat_message SET is_read = 1 WHERE cov_id = #{covId} AND sender_id != #{userId} AND is_read = 0")
     void markAllAsRead(@Param("covId") Integer covId, @Param("userId") Integer userId);
+
+    @Delete("DELETE FROM chat_message WHERE cov_id = #{covId}")
+    int deleteByCovId(@Param("covId") Integer covId);
 }
 

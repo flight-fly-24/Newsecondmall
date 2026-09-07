@@ -1,0 +1,13 @@
+services:
+  user-service:
+    ports:
+      - "127.0.0.1:8081:8081"
+  catalog-service:
+    ports:
+      - "127.0.0.1:8082:8082"
+  trade-service:
+    ports:
+      - "127.0.0.1:8083:8083"
+  interaction-service:
+    ports:
+      - "127.0.0.1:8084:8084"

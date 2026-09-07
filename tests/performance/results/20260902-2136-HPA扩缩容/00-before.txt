@@ -1,0 +1,20 @@
+=== T-0 初始状态 ===
+NAME                                                  REFERENCE                    TARGETS       MINPODS   MAXPODS   REPLICAS   AGE
+horizontalpodautoscaler.autoscaling/catalog-service   Deployment/catalog-service   cpu: 1%/50%   1         4         1          29h
+
+NAME                                      READY   STATUS    RESTARTS   AGE     IP           NODE       NOMINATED NODE   READINESS GATES
+pod/backend-7b4f58fff-f7mbr               1/1     Running   0          3h54m   10.42.0.58   ecs-fb18   <none>           <none>
+pod/catalog-service-845fdfd868-njbnw      1/1     Running   0          3h54m   10.42.0.56   ecs-fb18   <none>           <none>
+pod/frontend-6fb7697d9-r4mvz              1/1     Running   0          3h54m   10.42.0.57   ecs-fb18   <none>           <none>
+pod/interaction-service-bbb47b554-2cfzp   1/1     Running   0          3h54m   10.42.0.59   ecs-fb18   <none>           <none>
+pod/mysql-d976695d9-vz7d7                 1/1     Running   0          3h54m   10.42.0.62   ecs-fb18   <none>           <none>
+pod/trade-service-5fb7d4bdc7-wdsfz        1/1     Running   0          47m     10.42.0.63   ecs-fb18   <none>           <none>
+pod/user-service-5fdb56745b-k48db         1/1     Running   0          3h54m   10.42.0.61   ecs-fb18   <none>           <none>
+NAME                                  CPU(cores)   MEMORY(bytes)   
+backend-7b4f58fff-f7mbr               6m           180Mi           
+catalog-service-845fdfd868-njbnw      1m           178Mi           
+frontend-6fb7697d9-r4mvz              1m           4Mi             
+interaction-service-bbb47b554-2cfzp   2m           147Mi           
+mysql-d976695d9-vz7d7                 6m           527Mi           
+trade-service-5fb7d4bdc7-wdsfz        1m           130Mi           
+user-service-5fdb56745b-k48db         3m           165Mi           

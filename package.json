@@ -1,5 +1,25 @@
 {
+  "scripts": {
+    "test:api": "npm run test:api:monolith",
+    "test:api:monolith": "node tests/api/run-newman.mjs",
+    "test:api:microservices": "node tests/api/run-microservices-newman.mjs",
+    "test:api:microservices:compose": "node tests/api/run-microservices-newman.mjs --start-compose",
+    "test:api:all": "npm run test:api:monolith && npm run test:api:microservices",
+    "build:api:microservices": "node tests/api/build-microservices-collection.mjs",
+    "test:e2e": "node tests/e2e/run-e2e.mjs",
+    "test:e2e:microservices": "node tests/e2e/run-microservices-e2e.mjs",
+    "test:performance": "powershell -NoProfile -ExecutionPolicy Bypass -File tests/performance/run-jmeter.ps1",
+    "test:performance:baseline": "powershell -NoProfile -ExecutionPolicy Bypass -File tests/performance/run-jmeter.ps1 -Threads 20 -RampSeconds 20 -DurationSeconds 60",
+    "test:performance:hpa": "powershell -NoProfile -ExecutionPolicy Bypass -File tests/performance/run-jmeter.ps1 -Threads 100 -RampSeconds 30 -DurationSeconds 300",
+    "test:performance:catalog": "powershell -NoProfile -ExecutionPolicy Bypass -File tests/performance/run-catalog-jmeter.ps1",
+    "test:hpa:check": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-hpa-prerequisites.ps1",
+    "test:hpa:watch": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/watch-catalog-hpa.ps1"
+  },
   "dependencies": {
     "iconv-lite": "^0.7.2"
+  },
+  "devDependencies": {
+    "newman": "^6.2.2",
+    "newman-reporter-htmlextra": "^1.23.1"
   }
 }

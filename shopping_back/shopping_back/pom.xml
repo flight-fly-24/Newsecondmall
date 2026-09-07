@@ -13,21 +13,10 @@
     <version>0.0.1-SNAPSHOT</version>
     <name>shopping_back</name>
     <description>shopping_back</description>
-    <url/>
-    <licenses>
-        <license/>
-    </licenses>
-    <developers>
-        <developer/>
-    </developers>
-    <scm>
-        <connection/>
-        <developerConnection/>
-        <tag/>
-        <url/>
-    </scm>
     <properties>
-        <java.version>21</java.version>
+        <java.version>17</java.version>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
     </properties>
     <dependencies>
         <dependency>
@@ -43,7 +32,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
-        <!-- 显式声明，便于 IDE 解析 jakarta.validation.*（与 starter-validation 版本对齐由 BOM 管理） -->
         <dependency>
             <groupId>jakarta.validation</groupId>
             <artifactId>jakarta.validation-api</artifactId>
@@ -52,7 +40,6 @@
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-crypto</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
@@ -93,12 +80,14 @@
 
     <build>
         <plugins>
+            <!-- JaCoCo 插件：不强制与 Surefire 绑定，只在 verify 阶段生成报告（如果有数据） -->
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.8.14</version>
                 <executions>
                     <execution>
+                        <id>prepare-agent</id>
                         <goals>
                             <goal>prepare-agent</goal>
                         </goals>
@@ -112,6 +101,13 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <!-- Surefire 插件：保持默认，不传任何额外 argLine，测试一定可以正常执行 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
+
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
@@ -124,6 +120,7 @@
                     </excludes>
                 </configuration>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -162,5 +159,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

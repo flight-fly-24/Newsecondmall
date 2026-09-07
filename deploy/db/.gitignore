@@ -1,0 +1,10 @@
+# 备份产物不入版本控制
+backup/backups/
+*.sql.gz
+*.tar.gz
+manifest_*.txt
+
+# OS / 编辑器
+.DS_Store
+*.swp
+*~

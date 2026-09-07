@@ -1,0 +1,9 @@
+=== 1. 故障前状态 ===
+NAME                                  READY   STATUS    RESTARTS   AGE     IP           NODE       NOMINATED NODE   READINESS GATES
+backend-7b4f58fff-f7mbr               1/1     Running   0          4h15m   10.42.0.58   ecs-fb18   <none>           <none>
+catalog-service-845fdfd868-777fx      1/1     Running   0          103s    10.42.0.71   ecs-fb18   <none>           <none>
+frontend-6fb7697d9-r4mvz              1/1     Running   0          4h15m   10.42.0.57   ecs-fb18   <none>           <none>
+interaction-service-bbb47b554-2cfzp   1/1     Running   0          4h15m   10.42.0.59   ecs-fb18   <none>           <none>
+mysql-d976695d9-vz7d7                 1/1     Running   0          4h15m   10.42.0.62   ecs-fb18   <none>           <none>
+trade-service-5fb7d4bdc7-wdsfz        1/1     Running   0          68m     10.42.0.63   ecs-fb18   <none>           <none>
+user-service-5fdb56745b-k48db         1/1     Running   0          4h15m   10.42.0.61   ecs-fb18   <none>           <none>

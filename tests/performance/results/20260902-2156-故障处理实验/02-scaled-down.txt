@@ -1,0 +1,9 @@
+=== 2. 停止 catalog-service ===
+deployment.apps/catalog-service scaled
+NAME                                  READY   STATUS    RESTARTS   AGE
+backend-7b4f58fff-f7mbr               1/1     Running   0          4h15m
+frontend-6fb7697d9-r4mvz              1/1     Running   0          4h15m
+interaction-service-bbb47b554-2cfzp   1/1     Running   0          4h15m
+mysql-d976695d9-vz7d7                 1/1     Running   0          4h15m
+trade-service-5fb7d4bdc7-wdsfz        1/1     Running   0          68m
+user-service-5fdb56745b-k48db         1/1     Running   0          4h15m

@@ -1,0 +1,39 @@
+---
+version: 2.0
+
+# 已拆成三张流水线卡片，不要再用本文件做「镜像+部署」合一任务。
+# publish-images.yml / deploy-k8s.yml / health.yml
+# 若构建任务仍指向本 YAML，直接失败以免误用 docker20.10。
+
+env:
+  resource:
+    type: docker
+    arch: X86
+    class: 2U8G
+
+steps:
+  PRE_BUILD:
+    - checkout:
+        name: checkout
+        inputs:
+          scm: codehub
+          url: https://codehub.devcloud.cn-north-4.huaweicloud.com/a111c887c5a545eda4c6976ba10c1a75/NewSecondMall.git
+          branch: ${codeBranch}
+          lfs: true
+          submodule: true
+          depth: 1
+
+  BUILD:
+    - maven:
+        name: release-split-notice
+        image: cloudbuild@maven3.9.5-jdk17
+        inputs:
+          cache: false
+          command: |-
+            set -euo pipefail
+            echo "release.yml 已停用（会拉 cloudbuild@docker20.10 超时）。"
+            echo "请分别创建构建任务并串到流水线："
+            echo "  .cloudbuild/publish-images.yml"
+            echo "  .cloudbuild/deploy-k8s.yml"
+            echo "  .cloudbuild/health.yml"
+            exit 2

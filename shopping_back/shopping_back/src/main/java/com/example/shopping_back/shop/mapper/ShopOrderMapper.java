@@ -80,37 +80,6 @@ public interface ShopOrderMapper {
                 ORDER BY st.store_id LIMIT 1
             )
             LEFT JOIN product_review r ON r.order_id = o.order_id
-            WHERE o.buyer_id = #{buyerId}
-            ORDER BY o.created_at DESC, o.order_id DESC
-            """)
-    List<OrderRecord> selectBuyerOrders(@Param("buyerId") Integer buyerId);
-
-    @Select("""
-            SELECT o.order_id AS orderId,
-                   o.buyer_id AS buyerId,
-                   o.seller_id AS sellerId,
-                   o.goods_id AS goodsId,
-                   o.status,
-                   o.amount,
-                   o.created_at AS createdAt,
-                   g.goods_name AS goodsName,
-                   g.image AS goodsImage,
-                   g.scene,
-                   g.category,
-                   COALESCE(s.store_name, u.username, '个人卖家') AS sellerName,
-                   r.product_score AS productScore,
-                   r.seller_score AS sellerScore,
-                   r.content AS reviewContent,
-                   r.created_at AS reviewedAt
-            FROM orders o
-            LEFT JOIN goods g ON g.goods_id = o.goods_id
-            LEFT JOIN users u ON u.user_id = o.seller_id
-            LEFT JOIN store s ON s.store_id = (
-                SELECT st.store_id FROM store st
-                WHERE st.seller_id = o.seller_id AND st.status = 'normal'
-                ORDER BY st.store_id LIMIT 1
-            )
-            LEFT JOIN product_review r ON r.order_id = o.order_id
             WHERE o.order_id = #{orderId}
             """)
     OrderRecord selectOrder(@Param("orderId") Integer orderId);
@@ -176,4 +145,39 @@ public interface ShopOrderMapper {
             WHERE seller_id = #{sellerId}
             """)
     int refreshStoreCredit(@Param("sellerId") Integer sellerId);
+
+    @Select("""
+            SELECT o.order_id AS orderId,
+                   o.buyer_id AS buyerId,
+                   o.seller_id AS sellerId,
+                   o.goods_id AS goodsId,
+                   o.status,
+                   o.amount,
+                   o.created_at AS createdAt,
+                   g.goods_name AS goodsName,
+                   g.image AS goodsImage,
+                   g.scene,
+                   g.category,
+                   COALESCE(s.store_name, u.username, '个人卖家') AS sellerName,
+                   r.product_score AS productScore,
+                   r.seller_score AS sellerScore,
+                   r.content AS reviewContent,
+                   r.created_at AS reviewedAt
+            FROM orders o
+            LEFT JOIN goods g ON g.goods_id = o.goods_id
+            LEFT JOIN users u ON u.user_id = o.seller_id
+            LEFT JOIN store s ON s.store_id = (
+                SELECT st.store_id FROM store st
+                WHERE st.seller_id = o.seller_id AND st.status = 'normal'
+                ORDER BY st.store_id LIMIT 1
+            )
+            LEFT JOIN product_review r ON r.order_id = o.order_id
+            WHERE o.buyer_id = #{buyerId}
+              AND (#{status} IS NULL OR #{status} = '' OR o.status = #{status})
+            ORDER BY o.created_at DESC, o.order_id DESC
+            """)
+    List<OrderRecord> selectBuyerOrdersFiltered(@Param("buyerId") Integer buyerId, @Param("status") String status);
+
+    @Update("UPDATE orders SET status = #{status} WHERE order_id = #{orderId}")
+    int updateOrderStatus(@Param("orderId") Integer orderId, @Param("status") String status);
 }

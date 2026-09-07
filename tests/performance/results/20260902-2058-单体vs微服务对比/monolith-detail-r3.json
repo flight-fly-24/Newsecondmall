@@ -1,0 +1,1 @@
+{"url": "http://10.43.13.11:8080/api/products/1001", "threads": 20, "duration_s": 60.0, "requests": 40165, "throughput_rps": 669.2, "avg_ms": 29.87, "p95_ms": 57.67, "errors": 0, "error_rate": 0.0}

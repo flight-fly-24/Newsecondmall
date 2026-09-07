@@ -64,22 +64,23 @@
 
         <view class="main">
           <view class="profile-card">
-            <view class="profile-avatar avatar-clickable" @click="chooseAvatar">
-              <image v-if="avatarUrl" class="avatar-img" :src="avatarUrl" mode="aspectFill"></image>
-              <text v-else>{{ avatar }}</text>
-              <view class="avatar-edit">更换头像</view>
-            </view>
-            <view class="profile-main">
-              <text class="name">{{ user.username || '松果用户' }}</text>
-              <text class="meta">{{ center.phoneMasked || user.phoneMasked || '未绑定手机' }} · {{ verifiedText }}</text>
-              <view class="chips">
-                <text class="chip">{{ roleLabel }}</text>
-                <text class="chip">信用 {{ user.credit || 100 }}</text>
-                <text class="chip">{{ center.accountStatus || '正常' }}</text>
+            <view class="profile-identity">
+              <view class="profile-avatar avatar-clickable" @click="chooseAvatar">
+                <image v-if="avatarUrl" class="avatar-img" :src="avatarUrl" mode="aspectFill"></image>
+                <text v-else>{{ avatar }}</text>
+                <view class="avatar-edit">更换头像</view>
+              </view>
+              <view class="profile-main">
+                <text class="name">{{ user.username || '松果用户' }}</text>
+                <text class="meta">{{ center.phoneMasked || user.phoneMasked || '未绑定手机' }} · {{ verifiedText }}</text>
+                <view class="chips">
+                  <text class="chip">{{ roleLabel }}</text>
+                  <text class="chip">信用 {{ user.credit || 100 }}</text>
+                  <text class="chip">{{ center.accountStatus || '正常' }}</text>
+                </view>
               </view>
             </view>
             <view class="profile-actions">
-              <button v-if="isBuyer" class="primary small" @click="goOrders">我的订单</button>
               <button v-if="isSeller" class="primary small" @click="enterRoleHome">卖家工作台</button>
               <button v-if="isAdmin" class="primary small" @click="enterRoleHome">管理后台</button>
               <button class="ghost small" @click="logout">退出登录</button>
@@ -96,7 +97,7 @@
                 <view v-for="item in buyerOrderCards" :key="item.label" class="order-item" @click="openOrderTab(item)">
                   <text class="order-icon">{{ item.icon }}</text>
                   <text class="order-label">{{ item.label }}</text>
-                  <text v-if="item.count" class="order-count">{{ item.count }}</text>
+                  <text v-if="item.badge" class="order-count">{{ item.badge }}</text>
                 </view>
               </view>
             </view>
@@ -136,7 +137,7 @@
                 <text class="section-more">数据库同步</text>
               </view>
               <view class="shortcut-grid">
-                <view v-for="item in buyerShortcuts" :key="item.key" class="shortcut" @click="handleNav(item)">
+                <view v-for="item in buyerShortcuts" :key="item.key" :data-testid="'buyer-nav-' + item.key" class="shortcut" @click="handleNav(item)">
                   <text class="shortcut-title">{{ item.label }}</text>
                   <text class="shortcut-desc">{{ item.desc }}</text>
                 </view>
@@ -154,12 +155,19 @@
             </view>
             <view class="interaction-list">
               <view v-if="!interactionItems.length" class="empty-line">暂无记录。收藏、浏览商品或关注店铺后会自动同步到这里。</view>
-              <view v-for="item in interactionItems" :key="item.type + '-' + item.id" class="interaction-row">
+              <view
+                v-for="item in interactionItems"
+                :key="item.type + '-' + item.id"
+                class="interaction-row"
+                :class="{ clickable: canOpenInteraction(item) }"
+                @click="openInteraction(item)"
+              >
                 <view>
-                  <text class="interaction-title">{{ item.title }}</text>
+                  <text data-testid="interaction-title" class="interaction-title">{{ item.title }}</text>
                   <text class="interaction-desc">{{ item.desc }} · {{ item.createdAt }}</text>
                 </view>
-                <text class="interaction-type">{{ item.type }}</text>
+                <text v-if="canOpenInteraction(item)" class="interaction-arrow">›</text>
+                <text v-else class="interaction-type">{{ item.type }}</text>
               </view>
             </view>
           </view>
@@ -220,6 +228,10 @@ export default {
       realNameForm: {
         realName: '',
         idCard: ''
+      },
+      seenBadgeIds: {
+        orders: [],
+        reviews: []
       }
     }
   },
@@ -297,8 +309,8 @@ export default {
       return [
         { title: '订单中心', items: [
           { key: 'overview', label: '我的概览', icon: '▣' },
-          { key: 'orders', label: '我的订单', icon: '□', action: 'orders', badge: this.orders.length || '' },
-          { key: 'reviewOrders', label: '待评价', icon: '☆', action: 'reviewOrders', badge: this.pendingReviewCount || '' }
+          { key: 'orders', label: '我的订单', icon: '□', action: 'orders', badge: this.unseenOrderCount || '' },
+          { key: 'reviewOrders', label: '待评价', icon: '☆', action: 'reviewOrders', badge: this.unseenReviewCount || '' }
         ] },
         { title: '足迹收藏', items: [
           { key: 'favorite', label: '商品收藏', icon: '♡', desc: '追踪心仪商品' },
@@ -332,14 +344,26 @@ export default {
       ]
     },
     pendingReviewCount() {
-      return this.orders.filter((item) => item.reviewable).length
+      return this.pendingReviewIds.length
+    },
+    orderIds() {
+      return this.collectOrderIds(this.orders)
+    },
+    pendingReviewIds() {
+      return this.collectOrderIds(this.orders.filter((item) => item.reviewable))
+    },
+    unseenOrderCount() {
+      return this.countUnseen(this.orderIds, this.seenBadgeIds.orders)
+    },
+    unseenReviewCount() {
+      return this.countUnseen(this.pendingReviewIds, this.seenBadgeIds.reviews)
     },
     buyerOrderCards() {
       return [
-        { label: '全部订单', icon: '□', count: this.orders.length, action: 'orders' },
-        { label: '已完成', icon: '✓', count: this.orders.filter((item) => item.status === '已完成').length, action: 'orders' },
-        { label: '待评价', icon: '☆', count: this.pendingReviewCount, action: 'reviewOrders' },
-        { label: '已评价', icon: '●', count: this.orders.filter((item) => item.reviewed).length, action: 'orders' }
+        { label: '全部订单', icon: '□', badge: this.unseenOrderCount || '', action: 'orders' },
+        { label: '已完成', icon: '✓', action: 'orders' },
+        { label: '待评价', icon: '☆', badge: this.unseenReviewCount || '', action: 'reviewOrders' },
+        { label: '已评价', icon: '●', action: 'orders' }
       ]
     },
     buyerShortcuts() {
@@ -374,6 +398,7 @@ export default {
           this.loggedIn = true
           setSession(token, body.data)
           if (this.user.role === 'buyer') {
+            this.loadSeenBadges()
             await Promise.all([this.loadBuyerCenter(), this.loadOrders()])
           } else if (this.user.role === 'seller') {
             await this.loadSellerCenter()
@@ -479,6 +504,34 @@ export default {
         this.panelLoading = false
       }
     },
+    interactionTargetId(item) {
+      const raw = item && (item.targetId || item.itemId || item.goodsId || item.storeId || item.topicId)
+      const value = Number(raw)
+      return Number.isInteger(value) && value > 0 ? value : 0
+    },
+    canOpenInteraction(item) {
+      if (!item || this.activeNav === 'credit') return false
+      if (this.activeNav === 'follow') return !!(this.interactionTargetId(item) || item.title)
+      return this.interactionTargetId(item) > 0
+    },
+    openInteraction(item) {
+      if (!this.canOpenInteraction(item)) return
+      const targetId = this.interactionTargetId(item)
+      if (this.activeNav === 'favorite' || this.activeNav === 'history') {
+        this.navTo('/pages/goods/detail?id=' + encodeURIComponent(targetId))
+        return
+      }
+      if (this.activeNav === 'follow') {
+        const query = targetId
+          ? '?id=' + encodeURIComponent(targetId)
+          : '?name=' + encodeURIComponent(item.title || '')
+        this.navTo('/pages/store/store' + query)
+        return
+      }
+      if (this.activeNav === 'topicFollow') {
+        this.navTo('/pages/topic/detail?id=' + encodeURIComponent(targetId))
+      }
+    },
     async clearInteraction() {
       if (!['favorite', 'history', 'follow', 'topicFollow'].includes(this.activeNav)) return
       this.panelLoading = true
@@ -539,7 +592,49 @@ export default {
     goRegister() {
       uni.navigateTo({ url: '/pages/auth/register' })
     },
+    collectOrderIds(list) {
+      return (list || []).map((item) => String(item && item.id ? item.id : '')).filter(Boolean)
+    },
+    countUnseen(currentIds, seenIds) {
+      const seen = new Set(seenIds || [])
+      return currentIds.filter((id) => !seen.has(id)).length
+    },
+    badgeUserKey() {
+      return String((this.user && (this.user.userId || this.user.id || this.user.username)) || '')
+    },
+    loadSeenBadges() {
+      const userKey = this.badgeUserKey()
+      if (!userKey) {
+        this.seenBadgeIds = { orders: [], reviews: [] }
+        return
+      }
+      try {
+        const all = uni.getStorageSync('me_nav_badge_seen') || {}
+        const mine = all[userKey] || {}
+        this.seenBadgeIds = {
+          orders: Array.isArray(mine.orders) ? mine.orders.map(String) : [],
+          reviews: Array.isArray(mine.reviews) ? mine.reviews.map(String) : []
+        }
+      } catch (e) {
+        this.seenBadgeIds = { orders: [], reviews: [] }
+      }
+    },
+    markBadgesSeen(kind) {
+      if (kind === 'reviews') {
+        this.seenBadgeIds = { ...this.seenBadgeIds, reviews: this.pendingReviewIds.slice() }
+      } else {
+        this.seenBadgeIds = { ...this.seenBadgeIds, orders: this.orderIds.slice() }
+      }
+      const userKey = this.badgeUserKey()
+      if (!userKey) return
+      try {
+        const all = uni.getStorageSync('me_nav_badge_seen') || {}
+        all[userKey] = this.seenBadgeIds
+        uni.setStorageSync('me_nav_badge_seen', all)
+      } catch (e) {}
+    },
     goOrders(tab = '') {
+      this.markBadgesSeen(tab === '待评价' ? 'reviews' : 'orders')
       const query = tab ? '?tab=' + encodeURIComponent(tab) : ''
       uni.navigateTo({ url: '/pages/order/list' + query })
     },
@@ -891,13 +986,29 @@ button::after {
 }
 .profile-card {
   display: flex;
+  align-items: center;
   justify-content: space-between;
   gap: 20px;
   padding: 28px;
   background: linear-gradient(135deg, #fff 0%, #f8fbf9 100%);
 }
+.profile-identity {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+  flex: 1;
+  text-align: left;
+}
 .profile-main {
   min-width: 0;
+  flex: 1;
+  text-align: left;
+}
+.name,
+.meta {
+  display: block;
+  text-align: left;
 }
 .name {
   font-size: 26px;
@@ -1073,6 +1184,15 @@ button::after {
   gap: 14px;
   padding: 14px 16px;
 }
+.interaction-row.clickable {
+  cursor: pointer;
+  transition: background .16s ease, border-color .16s ease, transform .16s ease;
+}
+.interaction-row.clickable:hover {
+  background: #f0f7f3;
+  border-color: #cfe6d8;
+  transform: translateX(2px);
+}
 .interaction-title,
 .interaction-desc {
   display: block;
@@ -1094,6 +1214,12 @@ button::after {
   color: #1f5c43;
   font-size: 12px;
   font-weight: 900;
+}
+.interaction-arrow {
+  flex-shrink: 0;
+  color: #94a3b8;
+  font-size: 22px;
+  line-height: 1;
 }
 .empty-line {
   padding: 16px;
@@ -1177,10 +1303,14 @@ button::after {
   .side {
     position: static;
   }
-  .profile-card,
+  .profile-card {
+    align-items: center;
+  }
+  .profile-identity {
+    flex: 1 1 auto;
+  }
   .profile-actions {
-    flex-direction: column;
-    align-items: stretch;
+    margin-left: auto;
   }
   .order-grid,
   .stat-grid,

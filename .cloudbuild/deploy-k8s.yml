@@ -1,0 +1,49 @@
+---
+version: 2.0
+
+env:
+  resource:
+    type: docker
+    arch: X86
+    class: 2U8G
+
+steps:
+  PRE_BUILD:
+    - checkout:
+        name: checkout
+        inputs:
+          scm: codehub
+          url: https://codehub.devcloud.cn-north-4.huaweicloud.com/a111c887c5a545eda4c6976ba10c1a75/NewSecondMall.git
+          branch: ${codeBranch}
+          lfs: true
+          submodule: true
+          depth: 1
+
+  BUILD:
+    - sh:
+        name: deploy-k8s
+        inputs:
+          command: |-
+            set -eu
+            if [ ! -f scripts/ci-deploy-job.sh ]; then
+              echo "找不到 ci-deploy-job.sh"
+              exit 1
+            fi
+            bash scripts/ci-deploy-job.sh
+          ignore_fail: true
+    - upload_artifact:
+        name: upload-deploy-evidence
+        inputs:
+          path: "ci-artifacts/**"
+          custom_upload_path: /NewSecondMall-deploy-k8s/
+          ignore_fail: true
+    - sh:
+        name: deploy-gate
+        inputs:
+          command: |-
+            set -eu
+            if [ ! -f scripts/ci-deploy-gate.sh ]; then
+              echo "找不到 ci-deploy-gate.sh"
+              exit 1
+            fi
+            bash scripts/ci-deploy-gate.sh

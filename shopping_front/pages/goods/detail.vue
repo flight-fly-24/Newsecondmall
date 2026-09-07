@@ -207,7 +207,7 @@
 						<view class="side-card">
 							<text class="side-title">购买动作</text>
 							<button class="side-primary" @click="goMessage">联系卖家</button>
-							<button class="side-secondary" @click="favoriteCurrent">收藏商品</button>
+							<button data-testid="favorite-product" class="side-secondary" @click="favoriteCurrent">收藏商品</button>
 							<button class="side-secondary" @click="openStore">进入店铺</button>
 						</view>
 
@@ -458,23 +458,26 @@
 					uni.showToast({ title: '请先登录买家账号', icon: 'none' })
 				}
 			},
-			addToCart() {
-				addCartItem({
-					id: this.detail.id,
-					title: this.detail.title,
-					price: this.detail.price,
-					cover: this.detail.cover,
-					tag: this.detail.tag,
-					credit: this.detail.credit,
-					shopName: this.detail.shopName,
-					scene: this.detail.scene,
-					qty: 1
-				})
-				uni.showToast({ title: '已加入购物车', icon: 'success' })
+			async addToCart() {
+				try {
+					await addCartItem({ id: this.detail.id, qty: 1 })
+					uni.showToast({ title: '已加入购物车', icon: 'success' })
+					return true
+				} catch (e) {
+					if (e && e.statusCode === 401) {
+						uni.showToast({ title: '请先登录', icon: 'none' })
+						uni.navigateTo({ url: '/pages/auth/login' })
+					} else {
+						uni.showToast({ title: pickErrorMessage(e) || '加入购物车失败', icon: 'none' })
+					}
+					return false
+				}
 			},
-			buyNow() {
-				this.addToCart()
-				uni.navigateTo({ url: '/pages/order/confirm' })
+			async buyNow() {
+				const added = await this.addToCart()
+				if (added) {
+					uni.navigateTo({ url: '/pages/order/confirm' })
+				}
 			},
 			goHome() {
 				uni.switchTab({ url: '/pages/home/home' })
@@ -486,7 +489,8 @@
 						uni.showToast({ title: '商品数据未就绪', icon: 'none' })
 						return
 					}
-					const res = await post('/api/chat/conversations', { goodsId })
+					const sellerId = Number(this.detail.publisherId)
+					const res = await post('/api/chat/conversations', { goodsId, sellerId })
 					if (res.statusCode === 200 && res.data && res.data.data && res.data.data.covId) {
 						uni.setStorageSync('pending_message_focus', {
 							covId: res.data.data.covId,

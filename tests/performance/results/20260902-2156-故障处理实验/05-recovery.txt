@@ -1,0 +1,15 @@
+=== 5. 恢复 catalog-service ===
+deployment.apps/catalog-service scaled
+Waiting for deployment "catalog-service" rollout to finish: 0 out of 1 new replicas have been updated...
+Waiting for deployment "catalog-service" rollout to finish: 0 of 1 updated replicas are available...
+Waiting for deployment "catalog-service" rollout to finish: 0 of 1 updated replicas are available...
+deployment "catalog-service" successfully rolled out
+恢复后 GET /api/products -> 200 (0.007065s)
+NAME                                  READY   STATUS    RESTARTS   AGE
+backend-7b4f58fff-f7mbr               1/1     Running   0          4h16m
+catalog-service-845fdfd868-pj989      1/1     Running   0          27s
+frontend-6fb7697d9-r4mvz              1/1     Running   0          4h16m
+interaction-service-bbb47b554-2cfzp   1/1     Running   0          4h16m
+mysql-d976695d9-vz7d7                 1/1     Running   0          4h16m
+trade-service-5fb7d4bdc7-wdsfz        1/1     Running   0          68m
+user-service-5fdb56745b-k48db         1/1     Running   0          4h16m

@@ -1,0 +1,16 @@
+services:
+  selenium:
+    image: ${SELENIUM_IMAGE:-selenium/standalone-chrome:4.35.0}
+    shm_size: 2gb
+    restart: "no"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:4444/status | grep -q '\"ready\": true'"]
+      interval: 5s
+      timeout: 5s
+      retries: 24
+    networks:
+      - shop_internal
+
+networks:
+  shop_internal:
+    name: ${E2E_NETWORK_NAME:-soft-shop-e2e-net}

@@ -249,6 +249,17 @@ export function buildTopicDetailUrl(item = {}) {
   return '/pages/topic/detail?id=' + encodeURIComponent(item.id || '')
 }
 
+export function formatTopicHeat(topic = {}) {
+  const posts = Number(topic.postCount) || 0
+  const follows = Number(topic.followCount) || 0
+  return posts + ' 帖 · ' + follows + ' 关注'
+}
+
+export function withTopicHeat(topic) {
+  if (!topic || typeof topic !== 'object') return {}
+  return Object.assign({}, topic, { heat: formatTopicHeat(topic) })
+}
+
 export function getStoreCover(store = {}) {
   return store.cover || store.fallbackCover || '/static/goods/viewtop-monitor.jpg'
 }

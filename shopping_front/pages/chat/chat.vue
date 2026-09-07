@@ -1,5 +1,9 @@
 <template>
   <view class="chat-container">
+    <view class="chat-toolbar">
+      <text class="chat-toolbar-hint">聊天记录仅双方可见</text>
+      <text class="chat-toolbar-delete" @click="confirmDelete">删除对话</text>
+    </view>
     <scroll-view class="message-list" scroll-y :scroll-top="scrollTop">
       <view v-if="messages.length === 0" class="empty-state">暂无消息，开始聊天吧</view>
 
@@ -44,7 +48,7 @@
 
 <script>
 import { fetchMe } from '@/services/auth.js'
-import { get, post } from '@/utils/request.js'
+import { get, post, del } from '@/utils/request.js'
 
 export default {
   data() {
@@ -59,7 +63,8 @@ export default {
       sending: false,
       scrollTop: 0,
       showHumanServicePopupFlag: false,
-      lastProcessedAiReplyId: null
+      lastProcessedAiReplyId: null,
+      deleting: false
     }
   },
   onLoad(options) {
@@ -234,6 +239,36 @@ export default {
     },
     toAiAssistant() {
       uni.navigateTo({ url: '/pages/ai-assistant/ai-assistant' })
+    },
+    confirmDelete() {
+      if (!this.covId || this.deleting) return
+      uni.showModal({
+        title: '删除对话',
+        content: '删除后聊天记录无法恢复，确定删除吗？',
+        confirmText: '删除',
+        confirmColor: '#b91c1c',
+        success: (res) => {
+          if (res.confirm) this.deleteConversation()
+        }
+      })
+    },
+    async deleteConversation() {
+      if (!this.covId || this.deleting) return
+      this.deleting = true
+      try {
+        await del(`/api/chat/conversations/${this.covId}`)
+        this.disconnect()
+        uni.showToast({ title: '对话已删除', icon: 'none' })
+        setTimeout(() => {
+          uni.navigateBack({
+            fail: () => uni.switchTab({ url: '/pages/message/message' })
+          })
+        }, 400)
+      } catch (e) {
+        console.error('删除会话失败', e)
+        uni.showToast({ title: '删除失败', icon: 'none' })
+        this.deleting = false
+      }
     }
   }
 }
@@ -247,6 +282,24 @@ export default {
   background: #f4f7fb;
   position: relative;
   overflow: hidden;
+}
+.chat-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16rpx 24rpx;
+  background: #ffffff;
+  border-bottom: 1rpx solid #e5e7eb;
+  flex-shrink: 0;
+}
+.chat-toolbar-hint {
+  font-size: 24rpx;
+  color: #94a3b8;
+}
+.chat-toolbar-delete {
+  font-size: 26rpx;
+  color: #b91c1c;
+  padding: 8rpx 12rpx;
 }
 .message-list {
   flex: 1;

@@ -1,0 +1,38 @@
+---
+version: 2.0
+
+# Used only when the pipeline replaces the combined unit-test job with
+# monolith + four microservice jobs running in parallel.
+env:
+  resource: {type: docker, arch: X86, class: 2U8G}
+
+steps:
+  PRE_BUILD:
+    - checkout:
+        name: checkout
+        inputs:
+          scm: codehub
+          url: https://codehub.devcloud.cn-north-4.huaweicloud.com/a111c887c5a545eda4c6976ba10c1a75/NewSecondMall.git
+          branch: ${codeBranch}
+          lfs: true
+          submodule: true
+          depth: 1
+  BUILD:
+    - maven:
+        name: monolith-unit-test
+        image: cloudbuild@maven3.9.5-jdk17
+        inputs:
+          cache: false
+          command: |-
+            set -euo pipefail
+            cd shopping_back/shopping_back
+            mvn -B -ntp clean test jacoco:report
+            mkdir -p ../../ci-artifacts/monolith
+            tar -czf ../../ci-artifacts/monolith/unit-reports.tgz \
+              -C target surefire-reports site/jacoco 2>/dev/null || true
+    - upload_artifact:
+        name: upload-monolith-unit-reports
+        inputs:
+          path: "ci-artifacts/monolith/**"
+          custom_upload_path: /NewSecondMall-monolith-unit-test/
+          ignore_fail: true

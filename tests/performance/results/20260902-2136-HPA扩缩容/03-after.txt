@@ -1,0 +1,12 @@
+=== 结束状态 ===
+NAME                                                  REFERENCE                    TARGETS       MINPODS   MAXPODS   REPLICAS   AGE
+horizontalpodautoscaler.autoscaling/catalog-service   Deployment/catalog-service   cpu: 1%/50%   1         4         1          30h
+
+NAME                                      READY   STATUS    RESTARTS   AGE
+pod/backend-7b4f58fff-f7mbr               1/1     Running   0          4h9m
+pod/catalog-service-845fdfd868-njbnw      1/1     Running   0          4h9m
+pod/frontend-6fb7697d9-r4mvz              1/1     Running   0          4h9m
+pod/interaction-service-bbb47b554-2cfzp   1/1     Running   0          4h9m
+pod/mysql-d976695d9-vz7d7                 1/1     Running   0          4h8m
+pod/trade-service-5fb7d4bdc7-wdsfz        1/1     Running   0          61m
+pod/user-service-5fdb56745b-k48db         1/1     Running   0          4h9m

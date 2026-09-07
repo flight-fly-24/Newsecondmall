@@ -7,7 +7,7 @@
 ## 1. 必装软件
 
 ### 后端
-- JDK 21（与 `pom.xml` 保持一致）
+- JDK 17（与 `pom.xml` 保持一致）
 - Maven 3.9+（用IntelliJ IDEA等可以不装）
 - MySQL 8.0+（或 openGauss，建议先跑通 MySQL）
 

@@ -1,0 +1,43 @@
+---
+version: 2.0
+
+# Create one CodeArts Build job from this file for each SERVICE_MODULE value:
+# user-service, catalog-service, trade-service, interaction-service.
+# Put those jobs in parallel in the pipeline's "单元测试" stage.
+env:
+  resource: {type: docker, arch: X86, class: 2U8G}
+
+steps:
+  PRE_BUILD:
+    - checkout:
+        name: checkout
+        inputs:
+          scm: codehub
+          url: https://codehub.devcloud.cn-north-4.huaweicloud.com/a111c887c5a545eda4c6976ba10c1a75/NewSecondMall.git
+          branch: ${codeBranch}
+          lfs: true
+          submodule: true
+          depth: 1
+  BUILD:
+    - maven:
+        name: microservice-unit-test
+        image: cloudbuild@maven3.9.5-jdk17
+        inputs:
+          cache: false
+          command: |-
+            set -euo pipefail
+            case "${SERVICE_MODULE:?SERVICE_MODULE is required}" in
+              user-service|catalog-service|trade-service|interaction-service) ;;
+              *) echo "Unsupported SERVICE_MODULE: ${SERVICE_MODULE}" >&2; exit 2 ;;
+            esac
+            mvn -B -ntp clean verify -pl "services/${SERVICE_MODULE}" -am
+            mkdir -p ci-artifacts/microservices
+            tar -czf "ci-artifacts/microservices/${SERVICE_MODULE}-unit-reports.tgz" \
+              "services/${SERVICE_MODULE}/target/surefire-reports" \
+              "services/${SERVICE_MODULE}/target/failsafe-reports" 2>/dev/null || true
+    - upload_artifact:
+        name: upload-microservice-unit-reports
+        inputs:
+          path: "ci-artifacts/microservices/**"
+          custom_upload_path: /NewSecondMall-microservice-unit-test/
+          ignore_fail: true

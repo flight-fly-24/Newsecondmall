@@ -4,7 +4,7 @@ services:
     restart: unless-stopped
     environment:
       MYSQL_DATABASE: shop_db
-      MYSQL_USER: shop_user
+      MYSQL_USER: ${DB_USERNAME:-shop_user}
       MYSQL_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?MYSQL_ROOT_PASSWORD is required}
       TZ: Asia/Shanghai
@@ -13,6 +13,8 @@ services:
       - --collation-server=utf8mb4_general_ci
     volumes:
       - mysql_data:/var/lib/mysql
+      # 首次初始化时创建 4 个微服务数据库（只建库，建表由各微服务 spring.sql.init 完成）
+      - ./db/init/000-create-microservice-databases.sql:/docker-entrypoint-initdb.d/000-create-microservice-databases.sql:ro
       - ../shopping_back/shopping_back/doc/db.sql:/docker-entrypoint-initdb.d/001-schema.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$${MYSQL_ROOT_PASSWORD} --silent"]
@@ -23,16 +25,18 @@ services:
       - shop_internal
 
   backend:
+    image: newsecondmall-backend:${IMAGE_TAG:-dev}
     build:
       context: ..
       dockerfile: deploy/backend.Dockerfile
     restart: unless-stopped
     environment:
       DB_URL: jdbc:mysql://mysql:3306/shop_db?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=UTF-8&allowPublicKeyRetrieval=true&useSSL=false
-      DB_USERNAME: shop_user
+      DB_USERNAME: ${DB_USERNAME:-shop_user}
       DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
       APP_CORS_PATTERNS: ${PUBLIC_ORIGIN:?PUBLIC_ORIGIN is required}
       APP_UPLOAD_DIR: /app/uploads
+      AUTH_BASE_URL: http://user-service:8081
       AI_BARGAIN_API_KEY: ${AI_BARGAIN_API_KEY:-}
       DASH_SCOPE_API_KEY: ${DASH_SCOPE_API_KEY:-}
       JAVA_TOOL_OPTIONS: -XX:MaxRAMPercentage=75.0
@@ -45,16 +49,126 @@ services:
     networks:
       - shop_internal
 
+  # ============ 4 个业务微服务（本地一键构建） ============
+  user-service:
+    image: newsecondmall-user-service:${IMAGE_TAG:-dev}
+    build:
+      context: ..
+      dockerfile: deploy/microservice.Dockerfile
+      args:
+        MODULE_DIR: services/user-service
+        JAR_NAME: user-service-1.0.0.jar
+    restart: unless-stopped
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/user_db?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=UTF-8&allowPublicKeyRetrieval=true&useSSL=false
+      DB_USERNAME: ${DB_USERNAME:-shop_user}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      TZ: Asia/Shanghai
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - shop_internal
+
+  catalog-service:
+    image: newsecondmall-catalog-service:${IMAGE_TAG:-dev}
+    build:
+      context: ..
+      dockerfile: deploy/microservice.Dockerfile
+      args:
+        MODULE_DIR: services/catalog-service
+        JAR_NAME: catalog-service-1.0.0.jar
+    restart: unless-stopped
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/catalog_db?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=UTF-8&allowPublicKeyRetrieval=true&useSSL=false
+      DB_USERNAME: ${DB_USERNAME:-shop_user}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      AUTH_BASE_URL: http://user-service:8081
+      TZ: Asia/Shanghai
+    depends_on:
+      mysql:
+        condition: service_healthy
+      user-service:
+        condition: service_started
+    networks:
+      - shop_internal
+
+  trade-service:
+    image: newsecondmall-trade-service:${IMAGE_TAG:-dev}
+    build:
+      context: ..
+      dockerfile: deploy/microservice.Dockerfile
+      args:
+        MODULE_DIR: services/trade-service
+        JAR_NAME: trade-service-1.0.0.jar
+    restart: unless-stopped
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/trade_db?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=UTF-8&allowPublicKeyRetrieval=true&useSSL=false
+      DB_USERNAME: ${DB_USERNAME:-shop_user}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      USER_BASE_URL: http://user-service:8081
+      AUTH_BASE_URL: http://user-service:8081
+      CATALOG_BASE_URL: http://catalog-service:8082
+      TZ: Asia/Shanghai
+    depends_on:
+      mysql:
+        condition: service_healthy
+      user-service:
+        condition: service_started
+      catalog-service:
+        condition: service_started
+    networks:
+      - shop_internal
+
+  interaction-service:
+    image: newsecondmall-interaction-service:${IMAGE_TAG:-dev}
+    build:
+      context: ..
+      dockerfile: deploy/microservice.Dockerfile
+      args:
+        MODULE_DIR: services/interaction-service
+        JAR_NAME: interaction-service-1.0.0.jar
+    restart: unless-stopped
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/interaction_db?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=UTF-8&allowPublicKeyRetrieval=true&useSSL=false
+      DB_USERNAME: ${DB_USERNAME:-shop_user}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      AUTH_BASE_URL: http://user-service:8081
+      CATALOG_BASE_URL: http://catalog-service:8082
+      TZ: Asia/Shanghai
+    depends_on:
+      mysql:
+        condition: service_healthy
+      user-service:
+        condition: service_started
+      catalog-service:
+        condition: service_started
+    networks:
+      - shop_internal
+
   frontend:
+    image: newsecondmall-frontend:${IMAGE_TAG:-dev}
     build:
       context: ..
       dockerfile: deploy/frontend.Dockerfile
+      args:
+        H5_DIST_DIR: ${H5_DIST_DIR:-shopping_front/dist/build/h5}
     restart: unless-stopped
+    # 唯一对外端口。不要给 backend / 微服务增加 ports。
     ports:
       - "${HTTP_PORT:-80}:80"
     depends_on:
       backend:
         condition: service_healthy
+      # Nginx upstream 引用了 4 个微服务 hostname，需等容器启动后再加载，否则报 host not found
+      user-service:
+        condition: service_started
+      catalog-service:
+        condition: service_started
+      trade-service:
+        condition: service_started
+      interaction-service:
+        condition: service_started
     networks:
       - shop_internal
 

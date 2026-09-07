@@ -1,0 +1,14 @@
+# PUBLIC_ORIGIN / APP_CORS_PATTERNS 必须等于老师浏览器地址栏（无尾斜杠）。
+# 弹性公网 IP 变了就改这两处，然后：kubectl apply -f k8s/configmap-app.yaml
+# 并滚动重启 backend：kubectl -n shop rollout restart deploy/backend
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: shop-app
+  namespace: shop
+  labels:
+    app.kubernetes.io/part-of: songuo-shop
+data:
+  PUBLIC_ORIGIN: "http://120.46.222.10"
+  APP_CORS_PATTERNS: "http://120.46.222.10"
+  TZ: "Asia/Shanghai"

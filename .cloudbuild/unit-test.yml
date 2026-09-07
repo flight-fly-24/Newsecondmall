@@ -1,0 +1,86 @@
+---
+version: 2.0
+env:
+  resource: {type: docker, arch: X86, class: 2U8G}
+steps:
+  PRE_BUILD:
+    - checkout:
+        name: checkout
+        inputs:
+          scm: codehub
+          url: https://codehub.devcloud.cn-north-4.myhuaweicloud.com/a111c887c5a545eda4c6976ba10c1a75/NewSecondMall.git
+          branch: ${codeBranch}
+          lfs: true
+          submodule: true
+          depth: 1
+  BUILD:
+    - maven:
+        name: monolith-unit-test
+        image: cloudbuild@maven3.9.5-jdk17
+        inputs:
+          cache: false
+          command: |-
+            set +e
+            cd shopping_back/shopping_back
+            mvn -B -ntp clean test jacoco:report
+            status=$?
+            cd ../..
+            printf '%s\n' "$status" > monolith-unit-exit-code.txt
+            tar -czf monolith-unit-reports.tgz -C shopping_back/shopping_back/target surefire-reports site/jacoco 2>/dev/null || true
+            exit 0
+          ignore_fail: true
+    - maven:
+        name: microservices-unit-test
+        image: cloudbuild@maven3.9.5-jdk17
+        inputs:
+          cache: false
+          command: |-
+            set +e
+            modules='services/common,services/user-service,services/catalog-service,services/trade-service,services/interaction-service'
+            mvn -B -ntp clean verify --fail-at-end -Dmaven.test.failure.ignore=true -pl "$modules" -am
+            test_status=$?
+            if grep -R -E 'failures="[1-9][0-9]*"|errors="[1-9][0-9]*"' services/*/target/surefire-reports/TEST-*.xml services/*/target/failsafe-reports/TEST-*.xml 2>/dev/null; then
+              test_status=1
+            fi
+            mvn -B -ntp jacoco:report --fail-at-end -pl "$modules" -am
+            coverage_status=0
+            mkdir -p tests/unit/results
+            printf '# Microservice unit-test CI summary\n\n' > tests/unit/results/summary.md
+            if [ "$test_status" -ne 0 ]; then printf -- '- test failures/errors detected; inspect Surefire and Failsafe XML\n' >> tests/unit/results/summary.md; fi
+            for module in common user-service catalog-service trade-service interaction-service; do
+              csv="services/$module/target/site/jacoco/jacoco.csv"
+              if [ ! -f "$csv" ]; then
+                printf -- '- %s: missing JaCoCo report\n' "$module" >> tests/unit/results/summary.md
+                coverage_status=1
+                continue
+              fi
+              metrics="$(awk -F, 'NR>1 {lm+=$8; lc+=$9; bm+=$6; bc+=$7} END {line=(lc+lm?100*lc/(lc+lm):0); branch=(bc+bm?100*bc/(bc+bm):-1); printf "%.2f %.2f",line,branch}' "$csv")"
+              line="${metrics%% *}"; branch="${metrics##* }"
+              printf -- '- %s: line=%s%% branch=%s%%\n' "$module" "$line" "$branch" >> tests/unit/results/summary.md
+              awk -v value="$line" 'BEGIN {exit !(value >= 60)}' || coverage_status=1
+              if [ "$module" != common ]; then awk -v value="$branch" 'BEGIN {exit !(value >= 50)}' || coverage_status=1; fi
+            done
+            [ "$test_status" -eq 0 ] && [ "$coverage_status" -eq 0 ]
+            status=$?
+            printf '%s\n' "$status" > microservices-unit-exit-code.txt
+            tar -czf microservices-unit-reports.tgz services/*/target/surefire-reports services/*/target/failsafe-reports services/*/target/site/jacoco tests/unit/results 2>/dev/null || true
+            exit 0
+          ignore_fail: true
+    - upload_artifact:
+        name: upload-monolith-unit-reports
+        inputs: {path: "monolith-unit-reports.tgz", custom_upload_path: /NewSecondMall-unit-test/, ignore_fail: true}
+    - upload_artifact:
+        name: upload-microservices-unit-reports
+        inputs: {path: "microservices-unit-reports.tgz", custom_upload_path: /NewSecondMall-unit-test/, ignore_fail: true}
+    - maven:
+        name: unit-test-gate
+        image: cloudbuild@maven3.9.5-jdk17
+        inputs:
+          cache: false
+          command: |-
+            set -eu
+            monolith="$(tr -d '[:space:]' < monolith-unit-exit-code.txt)"
+            microservices="$(tr -d '[:space:]' < microservices-unit-exit-code.txt)"
+            echo "单体单测退出码: $monolith"
+            echo "微服务单测/覆盖率退出码: $microservices"
+            [ "$monolith" -eq 0 ] && [ "$microservices" -eq 0 ]

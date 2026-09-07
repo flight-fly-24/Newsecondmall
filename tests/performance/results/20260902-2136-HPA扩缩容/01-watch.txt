@@ -1,0 +1,607 @@
+--- T+10s 21:36:01 ---
+catalog-service   Deployment/catalog-service   cpu: 1%/50%   1     4     1     29h
+catalog-service-845fdfd868-njbnw   1/1   Running   0     3h54m
+catalog-service-845fdfd868-njbnw   1m    178Mi   
+--- T+20s 21:36:11 ---
+catalog-service   Deployment/catalog-service   cpu: 1%/50%   1     4     1     29h
+catalog-service-845fdfd868-njbnw   1/1   Running   0     3h55m
+catalog-service-845fdfd868-njbnw   1m    178Mi   
+--- T+30s 21:36:21 ---
+catalog-service   Deployment/catalog-service   cpu: 1%/50%   1     4     1     29h
+catalog-service-845fdfd868-njbnw   1/1   Running   0     3h55m
+catalog-service-845fdfd868-njbnw   370m   204Mi   
+--- T+40s 21:36:32 ---
+catalog-service   Deployment/catalog-service   cpu: 370%/50%   1     4     1     29h
+catalog-service-845fdfd868-9tksh   0/1   Running   0     3s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     3h55m
+catalog-service-845fdfd868-t49sq   0/1   Running   0     3s
+catalog-service-845fdfd868-njbnw   499m   207Mi   
+--- T+50s 21:36:42 ---
+catalog-service   Deployment/catalog-service   cpu: 370%/50%   1     4     1     29h
+catalog-service-845fdfd868-9tksh   0/1   Running   0     14s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     3h55m
+catalog-service-845fdfd868-t49sq   0/1   Running   0     14s
+catalog-service-845fdfd868-njbnw   499m   207Mi   
+--- T+60s 21:36:53 ---
+catalog-service   Deployment/catalog-service   cpu: 499%/50%   1     4     3     29h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     24s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     3h55m
+catalog-service-845fdfd868-t49sq   1/1   Running   0     24s
+catalog-service-845fdfd868-9tksh   480m   90Mi    
+catalog-service-845fdfd868-njbnw   492m   208Mi   
+catalog-service-845fdfd868-t49sq   483m   104Mi   
+--- T+70s 21:37:03 ---
+catalog-service   Deployment/catalog-service   cpu: 492%/50%   1     4     3     29h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     35s
+catalog-service-845fdfd868-fjvvz   0/1   Running   0     5s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     3h56m
+catalog-service-845fdfd868-t49sq   1/1   Running   0     35s
+catalog-service-845fdfd868-9tksh   370m   144Mi   
+catalog-service-845fdfd868-njbnw   338m   208Mi   
+catalog-service-845fdfd868-t49sq   483m   104Mi   
+--- T+80s 21:37:14 ---
+catalog-service   Deployment/catalog-service   cpu: 492%/50%   1     4     3     29h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     46s
+catalog-service-845fdfd868-fjvvz   0/1   Running   0     16s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     3h56m
+catalog-service-845fdfd868-t49sq   1/1   Running   0     46s
+catalog-service-845fdfd868-9tksh   370m   144Mi   
+catalog-service-845fdfd868-njbnw   338m   208Mi   
+catalog-service-845fdfd868-t49sq   483m   104Mi   
+--- T+90s 21:37:25 ---
+catalog-service   Deployment/catalog-service   cpu: 338%/50%   1     4     4     29h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     56s
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     26s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     3h56m
+catalog-service-845fdfd868-t49sq   1/1   Running   0     56s
+catalog-service-845fdfd868-9tksh   480m   154Mi   
+catalog-service-845fdfd868-fjvvz   441m   110Mi   
+catalog-service-845fdfd868-njbnw   147m   207Mi   
+catalog-service-845fdfd868-t49sq   430m   204Mi   
+--- T+100s 21:37:36 ---
+catalog-service   Deployment/catalog-service   cpu: 313%/50%   1     4     4     29h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     67s
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     37s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     3h56m
+catalog-service-845fdfd868-t49sq   1/1   Running   0     67s
+catalog-service-845fdfd868-9tksh   455m   156Mi   
+catalog-service-845fdfd868-fjvvz   425m   177Mi   
+catalog-service-845fdfd868-njbnw   161m   207Mi   
+catalog-service-845fdfd868-t49sq   430m   204Mi   
+--- T+110s 21:37:47 ---
+catalog-service   Deployment/catalog-service   cpu: 308%/50%   1     4     4     29h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     78s
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     48s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     3h56m
+catalog-service-845fdfd868-t49sq   1/1   Running   0     78s
+catalog-service-845fdfd868-9tksh   333m   147Mi   
+catalog-service-845fdfd868-fjvvz   474m   191Mi   
+catalog-service-845fdfd868-njbnw   155m   207Mi   
+catalog-service-845fdfd868-t49sq   473m   208Mi   
+--- T+120s 21:37:57 ---
+catalog-service   Deployment/catalog-service   cpu: 308%/50%   1     4     4     29h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     89s
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     59s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     3h56m
+catalog-service-845fdfd868-t49sq   1/1   Running   0     89s
+catalog-service-845fdfd868-9tksh   333m   147Mi   
+catalog-service-845fdfd868-fjvvz   474m   191Mi   
+catalog-service-845fdfd868-njbnw   155m   207Mi   
+catalog-service-845fdfd868-t49sq   473m   208Mi   
+--- T+130s 21:38:08 ---
+catalog-service   Deployment/catalog-service   cpu: 358%/50%   1     4     4     29h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     99s
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     69s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     3h57m
+catalog-service-845fdfd868-t49sq   1/1   Running   0     99s
+catalog-service-845fdfd868-9tksh   341m   151Mi   
+catalog-service-845fdfd868-fjvvz   447m   205Mi   
+catalog-service-845fdfd868-njbnw   188m   207Mi   
+catalog-service-845fdfd868-t49sq   444m   202Mi   
+--- T+140s 21:38:18 ---
+catalog-service   Deployment/catalog-service   cpu: 355%/50%   1     4     4     29h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     110s
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     80s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     3h57m
+catalog-service-845fdfd868-t49sq   1/1   Running   0     110s
+catalog-service-845fdfd868-9tksh   329m   151Mi   
+catalog-service-845fdfd868-fjvvz   410m   216Mi   
+catalog-service-845fdfd868-njbnw   220m   207Mi   
+catalog-service-845fdfd868-t49sq   377m   203Mi   
+--- T+150s 21:38:29 ---
+catalog-service   Deployment/catalog-service   cpu: 355%/50%   1     4     4     29h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     2m1s
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     91s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     3h57m
+catalog-service-845fdfd868-t49sq   1/1   Running   0     2m1s
+catalog-service-845fdfd868-9tksh   329m   151Mi   
+catalog-service-845fdfd868-fjvvz   410m   216Mi   
+catalog-service-845fdfd868-njbnw   220m   207Mi   
+catalog-service-845fdfd868-t49sq   377m   203Mi   
+--- T+160s 21:38:40 ---
+catalog-service   Deployment/catalog-service   cpu: 334%/50%   1     4     4     29h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     2m11s
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     101s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     3h57m
+catalog-service-845fdfd868-t49sq   1/1   Running   0     2m11s
+catalog-service-845fdfd868-9tksh   298m   148Mi   
+catalog-service-845fdfd868-fjvvz   409m   203Mi   
+catalog-service-845fdfd868-njbnw   236m   207Mi   
+catalog-service-845fdfd868-t49sq   325m   195Mi   
+--- T+170s 21:38:51 ---
+catalog-service   Deployment/catalog-service   cpu: 317%/50%   1     4     4     29h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     2m22s
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     112s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     3h57m
+catalog-service-845fdfd868-t49sq   1/1   Running   0     2m22s
+catalog-service-845fdfd868-9tksh   326m   150Mi   
+catalog-service-845fdfd868-fjvvz   413m   202Mi   
+catalog-service-845fdfd868-njbnw   241m   207Mi   
+catalog-service-845fdfd868-t49sq   325m   195Mi   
+--- T+180s 21:39:01 ---
+catalog-service   Deployment/catalog-service   cpu: 326%/50%   1     4     4     29h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     2m33s
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     2m3s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     3h57m
+catalog-service-845fdfd868-t49sq   1/1   Running   0     2m33s
+catalog-service-845fdfd868-9tksh   309m   148Mi   
+catalog-service-845fdfd868-fjvvz   411m   203Mi   
+catalog-service-845fdfd868-njbnw   245m   207Mi   
+catalog-service-845fdfd868-t49sq   308m   194Mi   
+--- T+190s 21:39:12 ---
+catalog-service   Deployment/catalog-service   cpu: 326%/50%   1     4     4     29h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     2m43s
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     2m13s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     3h58m
+catalog-service-845fdfd868-t49sq   1/1   Running   0     2m43s
+catalog-service-845fdfd868-9tksh   309m   148Mi   
+catalog-service-845fdfd868-fjvvz   411m   203Mi   
+catalog-service-845fdfd868-njbnw   245m   207Mi   
+catalog-service-845fdfd868-t49sq   308m   194Mi   
+--- T+200s 21:39:23 ---
+catalog-service   Deployment/catalog-service   cpu: 318%/50%   1     4     4     29h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     2m54s
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     2m24s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     3h58m
+catalog-service-845fdfd868-t49sq   1/1   Running   0     2m54s
+catalog-service-845fdfd868-9tksh   245m   147Mi   
+catalog-service-845fdfd868-fjvvz   400m   206Mi   
+catalog-service-845fdfd868-njbnw   252m   207Mi   
+catalog-service-845fdfd868-t49sq   322m   202Mi   
+--- T+210s 21:39:33 ---
+catalog-service   Deployment/catalog-service   cpu: 304%/50%   1     4     4     29h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     3m5s
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     2m35s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     3h58m
+catalog-service-845fdfd868-t49sq   1/1   Running   0     3m5s
+catalog-service-845fdfd868-9tksh   271m   147Mi   
+catalog-service-845fdfd868-fjvvz   414m   200Mi   
+catalog-service-845fdfd868-njbnw   245m   207Mi   
+catalog-service-845fdfd868-t49sq   315m   195Mi   
+--- T+220s 21:39:44 ---
+catalog-service   Deployment/catalog-service   cpu: 304%/50%   1     4     4     29h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     3m15s
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     2m45s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     3h58m
+catalog-service-845fdfd868-t49sq   1/1   Running   0     3m15s
+catalog-service-845fdfd868-9tksh   271m   147Mi   
+catalog-service-845fdfd868-fjvvz   414m   200Mi   
+catalog-service-845fdfd868-njbnw   245m   207Mi   
+catalog-service-845fdfd868-t49sq   315m   195Mi   
+--- T+230s 21:39:55 ---
+catalog-service   Deployment/catalog-service   cpu: 311%/50%   1     4     4     29h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     3m26s
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     2m56s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     3h58m
+catalog-service-845fdfd868-t49sq   1/1   Running   0     3m26s
+catalog-service-845fdfd868-9tksh   262m   149Mi   
+catalog-service-845fdfd868-fjvvz   402m   205Mi   
+catalog-service-845fdfd868-njbnw   248m   207Mi   
+catalog-service-845fdfd868-t49sq   290m   196Mi   
+--- T+240s 21:40:05 ---
+catalog-service   Deployment/catalog-service   cpu: 300%/50%   1     4     4     29h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     3m37s
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     3m7s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     3h59m
+catalog-service-845fdfd868-t49sq   1/1   Running   0     3m37s
+catalog-service-845fdfd868-9tksh   271m   151Mi   
+catalog-service-845fdfd868-fjvvz   402m   205Mi   
+catalog-service-845fdfd868-njbnw   260m   207Mi   
+catalog-service-845fdfd868-t49sq   251m   195Mi   
+--- T+250s 21:40:17 ---
+catalog-service   Deployment/catalog-service   cpu: 296%/50%   1     4     4     29h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     3m48s
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     3m18s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     3h59m
+catalog-service-845fdfd868-t49sq   1/1   Running   0     3m48s
+catalog-service-845fdfd868-9tksh   292m   156Mi   
+catalog-service-845fdfd868-fjvvz   424m   203Mi   
+catalog-service-845fdfd868-njbnw   271m   207Mi   
+catalog-service-845fdfd868-t49sq   254m   195Mi   
+--- T+260s 21:40:27 ---
+catalog-service   Deployment/catalog-service   cpu: 296%/50%   1     4     4     29h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     3m59s
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     3m29s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     3h59m
+catalog-service-845fdfd868-t49sq   1/1   Running   0     3m59s
+catalog-service-845fdfd868-9tksh   292m   156Mi   
+catalog-service-845fdfd868-fjvvz   424m   203Mi   
+catalog-service-845fdfd868-njbnw   271m   207Mi   
+catalog-service-845fdfd868-t49sq   254m   195Mi   
+--- T+270s 21:40:38 ---
+catalog-service   Deployment/catalog-service   cpu: 310%/50%   1     4     4     30h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     4m10s
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     3m40s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     3h59m
+catalog-service-845fdfd868-t49sq   1/1   Running   0     4m10s
+catalog-service-845fdfd868-9tksh   264m   156Mi   
+catalog-service-845fdfd868-fjvvz   403m   208Mi   
+catalog-service-845fdfd868-njbnw   271m   207Mi   
+catalog-service-845fdfd868-t49sq   253m   195Mi   
+--- T+280s 21:40:49 ---
+catalog-service   Deployment/catalog-service   cpu: 297%/50%   1     4     4     30h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     4m20s
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     3m50s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     3h59m
+catalog-service-845fdfd868-t49sq   1/1   Running   0     4m20s
+catalog-service-845fdfd868-9tksh   269m   156Mi   
+catalog-service-845fdfd868-fjvvz   412m   212Mi   
+catalog-service-845fdfd868-njbnw   271m   207Mi   
+catalog-service-845fdfd868-t49sq   257m   195Mi   
+--- T+290s 21:40:59 ---
+catalog-service   Deployment/catalog-service   cpu: 297%/50%   1     4     4     30h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     4m31s
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     4m1s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     3h59m
+catalog-service-845fdfd868-t49sq   1/1   Running   0     4m31s
+catalog-service-845fdfd868-9tksh   269m   156Mi   
+catalog-service-845fdfd868-fjvvz   412m   212Mi   
+catalog-service-845fdfd868-njbnw   271m   207Mi   
+catalog-service-845fdfd868-t49sq   257m   195Mi   
+--- T+300s 21:41:10 ---
+catalog-service   Deployment/catalog-service   cpu: 302%/50%   1     4     4     30h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     4m41s
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     4m11s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     4h
+catalog-service-845fdfd868-t49sq   1/1   Running   0     4m41s
+catalog-service-845fdfd868-9tksh   287m   157Mi   
+catalog-service-845fdfd868-fjvvz   406m   231Mi   
+catalog-service-845fdfd868-njbnw   254m   207Mi   
+catalog-service-845fdfd868-t49sq   264m   195Mi   
+--- T+310s 21:41:20 ---
+catalog-service   Deployment/catalog-service   cpu: 302%/50%   1     4     4     30h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     4m51s
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     4m21s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     4h
+catalog-service-845fdfd868-t49sq   1/1   Running   0     4m51s
+catalog-service-845fdfd868-9tksh   287m   157Mi   
+catalog-service-845fdfd868-fjvvz   338m   202Mi   
+catalog-service-845fdfd868-njbnw   168m   207Mi   
+catalog-service-845fdfd868-t49sq   140m   195Mi   
+--- T+320s 21:41:30 ---
+catalog-service   Deployment/catalog-service   cpu: 233%/50%   1     4     4     30h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     5m2s
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     4m32s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     4h
+catalog-service-845fdfd868-t49sq   1/1   Running   0     5m2s
+catalog-service-845fdfd868-9tksh   23m   156Mi   
+catalog-service-845fdfd868-fjvvz   4m    202Mi   
+catalog-service-845fdfd868-njbnw   1m    207Mi   
+catalog-service-845fdfd868-t49sq   1m    195Mi   
+--- T+330s 21:41:41 ---
+catalog-service   Deployment/catalog-service   cpu: 233%/50%   1     4     4     30h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     5m12s
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     4m42s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     4h
+catalog-service-845fdfd868-t49sq   1/1   Running   0     5m12s
+catalog-service-845fdfd868-9tksh   23m   156Mi   
+catalog-service-845fdfd868-fjvvz   4m    202Mi   
+catalog-service-845fdfd868-njbnw   1m    207Mi   
+catalog-service-845fdfd868-t49sq   1m    195Mi   
+--- T+340s 21:41:51 ---
+catalog-service   Deployment/catalog-service   cpu: 7%/50%   1     4     4     30h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     5m22s
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     4m52s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     4h
+catalog-service-845fdfd868-t49sq   1/1   Running   0     5m22s
+catalog-service-845fdfd868-9tksh   2m    156Mi   
+catalog-service-845fdfd868-fjvvz   22m   204Mi   
+catalog-service-845fdfd868-njbnw   1m    207Mi   
+catalog-service-845fdfd868-t49sq   2m    195Mi   
+--- T+350s 21:42:01 ---
+catalog-service   Deployment/catalog-service   cpu: 6%/50%   1     4     4     30h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     5m33s
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     5m3s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     4h
+catalog-service-845fdfd868-t49sq   1/1   Running   0     5m33s
+catalog-service-845fdfd868-9tksh   1m    156Mi   
+catalog-service-845fdfd868-fjvvz   12m   204Mi   
+catalog-service-845fdfd868-njbnw   2m    199Mi   
+catalog-service-845fdfd868-t49sq   1m    193Mi   
+--- T+360s 21:42:12 ---
+catalog-service   Deployment/catalog-service   cpu: 6%/50%   1     4     4     30h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     5m43s
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     5m13s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     4h1m
+catalog-service-845fdfd868-t49sq   1/1   Running   0     5m43s
+catalog-service-845fdfd868-9tksh   1m    156Mi   
+catalog-service-845fdfd868-fjvvz   12m   204Mi   
+catalog-service-845fdfd868-njbnw   2m    199Mi   
+catalog-service-845fdfd868-t49sq   1m    193Mi   
+--- T+370s 21:42:22 ---
+catalog-service   Deployment/catalog-service   cpu: 4%/50%   1     4     4     30h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     5m53s
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     5m23s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     4h1m
+catalog-service-845fdfd868-t49sq   1/1   Running   0     5m53s
+catalog-service-845fdfd868-9tksh   2m    151Mi   
+catalog-service-845fdfd868-fjvvz   4m    190Mi   
+catalog-service-845fdfd868-njbnw   2m    199Mi   
+catalog-service-845fdfd868-t49sq   1m    193Mi   
+--- T+380s 21:42:32 ---
+catalog-service   Deployment/catalog-service   cpu: 2%/50%   1     4     4     30h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     6m4s
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     5m34s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     4h1m
+catalog-service-845fdfd868-t49sq   1/1   Running   0     6m4s
+catalog-service-845fdfd868-9tksh   1m    151Mi   
+catalog-service-845fdfd868-fjvvz   2m    189Mi   
+catalog-service-845fdfd868-njbnw   1m    194Mi   
+catalog-service-845fdfd868-t49sq   2m    182Mi   
+--- T+390s 21:42:43 ---
+catalog-service   Deployment/catalog-service   cpu: 2%/50%   1     4     4     30h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     6m14s
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     5m44s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     4h1m
+catalog-service-845fdfd868-t49sq   1/1   Running   0     6m14s
+catalog-service-845fdfd868-9tksh   1m    151Mi   
+catalog-service-845fdfd868-fjvvz   2m    189Mi   
+catalog-service-845fdfd868-njbnw   1m    194Mi   
+catalog-service-845fdfd868-t49sq   2m    182Mi   
+--- T+400s 21:42:53 ---
+catalog-service   Deployment/catalog-service   cpu: 1%/50%   1     4     4     30h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     6m24s
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     5m54s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     4h1m
+catalog-service-845fdfd868-t49sq   1/1   Running   0     6m24s
+catalog-service-845fdfd868-9tksh   1m    151Mi   
+catalog-service-845fdfd868-fjvvz   1m    189Mi   
+catalog-service-845fdfd868-njbnw   2m    194Mi   
+catalog-service-845fdfd868-t49sq   1m    182Mi   
+--- T+410s 21:43:03 ---
+catalog-service   Deployment/catalog-service   cpu: 1%/50%   1     4     4     30h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     6m34s
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     6m4s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     4h2m
+catalog-service-845fdfd868-t49sq   1/1   Running   0     6m34s
+catalog-service-845fdfd868-9tksh   2m    151Mi   
+catalog-service-845fdfd868-fjvvz   5m    189Mi   
+catalog-service-845fdfd868-njbnw   2m    194Mi   
+catalog-service-845fdfd868-t49sq   2m    182Mi   
+--- T+420s 21:43:14 ---
+catalog-service   Deployment/catalog-service   cpu: 1%/50%   1     4     4     30h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     6m45s
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     6m15s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     4h2m
+catalog-service-845fdfd868-t49sq   1/1   Running   0     6m45s
+catalog-service-845fdfd868-9tksh   2m    151Mi   
+catalog-service-845fdfd868-fjvvz   5m    189Mi   
+catalog-service-845fdfd868-njbnw   2m    194Mi   
+catalog-service-845fdfd868-t49sq   2m    182Mi   
+--- T+430s 21:43:24 ---
+catalog-service   Deployment/catalog-service   cpu: 2%/50%   1     4     4     30h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     6m55s
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     6m25s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     4h2m
+catalog-service-845fdfd868-t49sq   1/1   Running   0     6m55s
+catalog-service-845fdfd868-9tksh   2m    151Mi   
+catalog-service-845fdfd868-fjvvz   2m    189Mi   
+catalog-service-845fdfd868-njbnw   1m    194Mi   
+catalog-service-845fdfd868-t49sq   1m    182Mi   
+--- T+440s 21:43:34 ---
+catalog-service   Deployment/catalog-service   cpu: 1%/50%   1     4     4     30h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     7m5s
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     6m35s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     4h2m
+catalog-service-845fdfd868-t49sq   1/1   Running   0     7m5s
+catalog-service-845fdfd868-9tksh   1m    151Mi   
+catalog-service-845fdfd868-fjvvz   5m    189Mi   
+catalog-service-845fdfd868-njbnw   1m    194Mi   
+catalog-service-845fdfd868-t49sq   1m    182Mi   
+--- T+450s 21:43:45 ---
+catalog-service   Deployment/catalog-service   cpu: 1%/50%   1     4     4     30h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     7m16s
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     6m46s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     4h2m
+catalog-service-845fdfd868-t49sq   1/1   Running   0     7m16s
+catalog-service-845fdfd868-9tksh   1m    151Mi   
+catalog-service-845fdfd868-fjvvz   5m    189Mi   
+catalog-service-845fdfd868-njbnw   1m    194Mi   
+catalog-service-845fdfd868-t49sq   1m    182Mi   
+--- T+460s 21:43:55 ---
+catalog-service   Deployment/catalog-service   cpu: 2%/50%   1     4     4     30h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     7m26s
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     6m56s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     4h2m
+catalog-service-845fdfd868-t49sq   1/1   Running   0     7m26s
+catalog-service-845fdfd868-9tksh   1m    151Mi   
+catalog-service-845fdfd868-fjvvz   2m    189Mi   
+catalog-service-845fdfd868-njbnw   1m    194Mi   
+catalog-service-845fdfd868-t49sq   1m    182Mi   
+--- T+470s 21:44:05 ---
+catalog-service   Deployment/catalog-service   cpu: 1%/50%   1     4     4     30h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     7m36s
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     7m6s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     4h3m
+catalog-service-845fdfd868-t49sq   1/1   Running   0     7m36s
+catalog-service-845fdfd868-9tksh   1m    151Mi   
+catalog-service-845fdfd868-fjvvz   2m    189Mi   
+catalog-service-845fdfd868-njbnw   1m    194Mi   
+catalog-service-845fdfd868-t49sq   1m    182Mi   
+--- T+480s 21:44:15 ---
+catalog-service   Deployment/catalog-service   cpu: 1%/50%   1     4     4     30h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     7m47s
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     7m17s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     4h3m
+catalog-service-845fdfd868-t49sq   1/1   Running   0     7m47s
+catalog-service-845fdfd868-9tksh   1m    151Mi   
+catalog-service-845fdfd868-fjvvz   4m    189Mi   
+catalog-service-845fdfd868-njbnw   1m    194Mi   
+catalog-service-845fdfd868-t49sq   1m    182Mi   
+--- T+490s 21:44:26 ---
+catalog-service   Deployment/catalog-service   cpu: 1%/50%   1     4     4     30h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     7m57s
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     7m27s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     4h3m
+catalog-service-845fdfd868-t49sq   1/1   Running   0     7m57s
+catalog-service-845fdfd868-9tksh   1m    151Mi   
+catalog-service-845fdfd868-fjvvz   4m    189Mi   
+catalog-service-845fdfd868-njbnw   1m    194Mi   
+catalog-service-845fdfd868-t49sq   1m    182Mi   
+--- T+500s 21:44:37 ---
+catalog-service   Deployment/catalog-service   cpu: 1%/50%   1     4     4     30h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     8m8s
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     7m38s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     4h3m
+catalog-service-845fdfd868-t49sq   1/1   Running   0     8m8s
+catalog-service-845fdfd868-9tksh   1m    151Mi   
+catalog-service-845fdfd868-fjvvz   2m    189Mi   
+catalog-service-845fdfd868-njbnw   1m    194Mi   
+catalog-service-845fdfd868-t49sq   1m    182Mi   
+--- T+510s 21:44:47 ---
+catalog-service   Deployment/catalog-service   cpu: 1%/50%   1     4     4     30h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     8m18s
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     7m48s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     4h3m
+catalog-service-845fdfd868-t49sq   1/1   Running   0     8m18s
+catalog-service-845fdfd868-9tksh   1m    151Mi   
+catalog-service-845fdfd868-fjvvz   2m    189Mi   
+catalog-service-845fdfd868-njbnw   1m    194Mi   
+catalog-service-845fdfd868-t49sq   1m    182Mi   
+--- T+520s 21:44:58 ---
+catalog-service   Deployment/catalog-service   cpu: 1%/50%   1     4     4     30h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     8m29s
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     7m59s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     4h3m
+catalog-service-845fdfd868-t49sq   1/1   Running   0     8m29s
+catalog-service-845fdfd868-9tksh   1m    151Mi   
+catalog-service-845fdfd868-fjvvz   2m    189Mi   
+catalog-service-845fdfd868-njbnw   1m    194Mi   
+catalog-service-845fdfd868-t49sq   1m    182Mi   
+--- T+530s 21:45:08 ---
+catalog-service   Deployment/catalog-service   cpu: 1%/50%   1     4     4     30h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     8m39s
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     8m9s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     4h4m
+catalog-service-845fdfd868-t49sq   1/1   Running   0     8m39s
+catalog-service-845fdfd868-9tksh   2m    151Mi   
+catalog-service-845fdfd868-fjvvz   1m    189Mi   
+catalog-service-845fdfd868-njbnw   1m    194Mi   
+catalog-service-845fdfd868-t49sq   1m    182Mi   
+--- T+540s 21:45:19 ---
+catalog-service   Deployment/catalog-service   cpu: 1%/50%   1     4     4     30h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     8m50s
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     8m20s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     4h4m
+catalog-service-845fdfd868-t49sq   1/1   Running   0     8m50s
+catalog-service-845fdfd868-9tksh   2m    151Mi   
+catalog-service-845fdfd868-fjvvz   1m    189Mi   
+catalog-service-845fdfd868-njbnw   1m    194Mi   
+catalog-service-845fdfd868-t49sq   2m    182Mi   
+--- T+550s 21:45:29 ---
+catalog-service   Deployment/catalog-service   cpu: 1%/50%   1     4     4     30h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     9m
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     8m30s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     4h4m
+catalog-service-845fdfd868-t49sq   1/1   Running   0     9m
+catalog-service-845fdfd868-9tksh   2m    151Mi   
+catalog-service-845fdfd868-fjvvz   1m    189Mi   
+catalog-service-845fdfd868-njbnw   1m    194Mi   
+catalog-service-845fdfd868-t49sq   2m    182Mi   
+--- T+560s 21:45:39 ---
+catalog-service   Deployment/catalog-service   cpu: 1%/50%   1     4     4     30h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     9m11s
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     8m41s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     4h4m
+catalog-service-845fdfd868-t49sq   1/1   Running   0     9m11s
+catalog-service-845fdfd868-9tksh   2m    151Mi   
+catalog-service-845fdfd868-fjvvz   2m    189Mi   
+catalog-service-845fdfd868-njbnw   2m    194Mi   
+catalog-service-845fdfd868-t49sq   1m    182Mi   
+--- T+570s 21:45:50 ---
+catalog-service   Deployment/catalog-service   cpu: 1%/50%   1     4     4     30h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     9m21s
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     8m51s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     4h4m
+catalog-service-845fdfd868-t49sq   1/1   Running   0     9m21s
+catalog-service-845fdfd868-9tksh   1m    151Mi   
+catalog-service-845fdfd868-fjvvz   3m    189Mi   
+catalog-service-845fdfd868-njbnw   1m    194Mi   
+catalog-service-845fdfd868-t49sq   1m    182Mi   
+--- T+580s 21:46:00 ---
+catalog-service   Deployment/catalog-service   cpu: 1%/50%   1     4     4     30h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     9m31s
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     9m1s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     4h4m
+catalog-service-845fdfd868-t49sq   1/1   Running   0     9m31s
+catalog-service-845fdfd868-9tksh   1m    151Mi   
+catalog-service-845fdfd868-fjvvz   3m    189Mi   
+catalog-service-845fdfd868-njbnw   1m    194Mi   
+catalog-service-845fdfd868-t49sq   1m    182Mi   
+--- T+590s 21:46:10 ---
+catalog-service   Deployment/catalog-service   cpu: 1%/50%   1     4     4     30h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     9m42s
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     9m12s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     4h5m
+catalog-service-845fdfd868-t49sq   1/1   Running   0     9m42s
+catalog-service-845fdfd868-9tksh   1m    151Mi   
+catalog-service-845fdfd868-fjvvz   1m    189Mi   
+catalog-service-845fdfd868-njbnw   1m    194Mi   
+catalog-service-845fdfd868-t49sq   1m    182Mi   
+--- T+600s 21:46:21 ---
+catalog-service   Deployment/catalog-service   cpu: 1%/50%   1     4     4     30h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     9m52s
+catalog-service-845fdfd868-fjvvz   1/1   Running   0     9m22s
+catalog-service-845fdfd868-njbnw   1/1   Running   0     4h5m
+catalog-service-845fdfd868-t49sq   1/1   Running   0     9m52s
+catalog-service-845fdfd868-9tksh   1m    151Mi   
+catalog-service-845fdfd868-fjvvz   1m    189Mi   
+catalog-service-845fdfd868-njbnw   1m    194Mi   
+catalog-service-845fdfd868-t49sq   1m    182Mi   
+--- T+610s 21:46:31 ---
+catalog-service   Deployment/catalog-service   cpu: 1%/50%   1     4     4     30h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     10m
+catalog-service-845fdfd868-njbnw   1/1   Running   0     4h5m
+catalog-service-845fdfd868-9tksh   1m    151Mi   
+catalog-service-845fdfd868-njbnw   1m    194Mi   
+--- T+620s 21:46:41 ---
+catalog-service   Deployment/catalog-service   cpu: 1%/50%   1     4     4     30h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     10m
+catalog-service-845fdfd868-njbnw   1/1   Running   0     4h5m
+catalog-service-845fdfd868-9tksh   1m    151Mi   
+catalog-service-845fdfd868-njbnw   1m    194Mi   
+--- T+630s 21:46:52 ---
+catalog-service   Deployment/catalog-service   cpu: 1%/50%   1     4     2     30h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     10m
+catalog-service-845fdfd868-njbnw   1/1   Running   0     4h5m
+catalog-service-845fdfd868-9tksh   1m    151Mi   
+catalog-service-845fdfd868-njbnw   1m    195Mi   
+--- 缩容观察 +30s ---
+catalog-service   Deployment/catalog-service   cpu: 1%/50%   1     4     2     30h
+catalog-service-845fdfd868-9tksh   1/1   Running   0     10m
+catalog-service-845fdfd868-njbnw   1/1   Running   0     4h6m
+--- 缩容观察 +60s ---
+catalog-service   Deployment/catalog-service   cpu: 1%/50%   1     4     2     30h
+catalog-service-845fdfd868-njbnw   1/1   Running   0     4h6m
+--- 缩容观察 +90s ---
+catalog-service   Deployment/catalog-service   cpu: 1%/50%   1     4     1     30h
+catalog-service-845fdfd868-njbnw   1/1   Running   0     4h7m
+--- 缩容观察 +120s ---
+catalog-service   Deployment/catalog-service   cpu: 1%/50%   1     4     1     30h
+catalog-service-845fdfd868-njbnw   1/1   Running   0     4h7m
+--- 缩容观察 +150s ---
+catalog-service   Deployment/catalog-service   cpu: 1%/50%   1     4     1     30h
+catalog-service-845fdfd868-njbnw   1/1   Running   0     4h8m
+--- 缩容观察 +180s ---
+catalog-service   Deployment/catalog-service   cpu: 1%/50%   1     4     1     30h
+catalog-service-845fdfd868-njbnw   1/1   Running   0     4h8m

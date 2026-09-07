@@ -1,0 +1,11 @@
+services:
+  mysql:
+    image: ${MYSQL_IMAGE:-mysql:8.4}
+  backend:
+    build:
+      args:
+        DOCKER_HUB: ${DOCKER_HUB:-docker.io}
+  frontend:
+    build:
+      args:
+        DOCKER_HUB: ${DOCKER_HUB:-docker.io}

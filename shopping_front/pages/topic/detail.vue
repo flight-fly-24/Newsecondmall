@@ -31,6 +31,10 @@
 		</view>
 		<scroll-view scroll-y class="scroll">
 			<view class="content-wrap page">
+				<view class="back-row" @click="goBrowse">
+					<text class="back-icon">‹</text>
+					<text class="back-text">返回发现</text>
+				</view>
 				<view class="hero">
 					<view class="cover" :class="{ 'has-image': isImageUrl(topic.cover) }">
 						<image v-if="isImageUrl(topic.cover)" class="cover-img" :src="resolveImageUrl(topic.cover)" mode="aspectFill"></image>
@@ -39,7 +43,7 @@
 					<view class="hero-main">
 						<view class="hero-line">
 							<text class="badge">{{ topic.type || '话题' }}</text>
-							<text class="heat">{{ topic.heat || '0 帖 · 0 赞' }}</text>
+							<text class="heat">{{ formatTopicHeat(topic) }}</text>
 						</view>
 						<text class="title">{{ topic.title || '话题讨论' }}</text>
 						<text class="desc">{{ topic.desc || '一起讨论这个话题。' }}</text>
@@ -254,7 +258,7 @@
 </template>
 
 <script>
-	import { buildGoodsDetailUrl } from '../../data/catalog.js'
+	import { buildGoodsDetailUrl, formatTopicHeat, withTopicHeat } from '../../data/catalog.js'
 	import { buildRequestUrl } from '@/config/env.js'
 	import { createTopicComment, createTopicPost, fetchTopic, fetchTopicPosts, followTopic, toggleTopicPostAction, toggleTopicPostLike, unfollowTopic } from '@/services/shop.js'
 	import { isImageUrl, resolveImageUrl } from '@/utils/media.js'
@@ -335,13 +339,20 @@
 		methods: {
 			isImageUrl,
 			resolveImageUrl,
+			formatTopicHeat,
+			applyTopic(topic) {
+				this.topic = withTopicHeat(topic)
+			},
+			syncPostCount() {
+				this.applyTopic({ ...this.topic, postCount: this.posts.length })
+			},
 			async loadAll() {
 				await Promise.all([this.loadTopic(), this.loadPosts()])
 			},
 			async loadTopic() {
 				try {
 					const body = await fetchTopic(this.topicId)
-					this.topic = body && body.code === 0 ? body.data : {}
+					this.applyTopic(body && body.code === 0 ? body.data : {})
 				} catch (e) {
 					uni.showToast({ title: pickErrorMessage(e) || '话题加载失败', icon: 'none' })
 				}
@@ -513,7 +524,7 @@
 				try {
 					const body = this.topic.followed ? await unfollowTopic(this.topicId) : await followTopic(this.topicId)
 					if (body && body.code === 0 && body.data) {
-						this.topic = body.data
+						this.applyTopic(body.data)
 						uni.showToast({ title: this.topic.followed ? '已关注话题' : '已取消关注', icon: 'none' })
 					}
 				} catch (e) {
@@ -547,6 +558,7 @@
 					this.selectedDraftTags = []
 					this.showPostModal = false
 					uni.removeStorageSync(this.draftStorageKey())
+					this.syncPostCount()
 					this.loadTopic()
 					uni.showToast({ title: '已发布', icon: 'success' })
 				} catch (e) {
@@ -608,6 +620,13 @@
 				}
 				uni.navigateTo({ url })
 			},
+			goBrowse() {
+				uni.navigateBack({
+					fail() {
+						uni.switchTab({ url: '/pages/browse/browse' })
+					}
+				})
+			},
 			searchTopics() {
 				uni.switchTab({ url: '/pages/browse/browse' })
 			},
@@ -641,6 +660,24 @@
 	.create-shortcut { height: 44px; padding: 0 18px; background: #12372a; color: #fff; flex-shrink: 0; box-shadow: 0 14px 34px rgba(18,55,42,.16); }
 	.scroll { height: calc(100vh - 82px); }
 	.page { position: relative; padding: 28rpx; }
+	.back-row {
+		display: flex;
+		align-items: center;
+		gap: 4px;
+		margin-bottom: 16rpx;
+		color: #1f5c43;
+		width: fit-content;
+		cursor: pointer;
+	}
+	.back-icon {
+		font-size: 36rpx;
+		line-height: 1;
+		font-weight: 700;
+	}
+	.back-text {
+		font-size: 26rpx;
+		font-weight: 800;
+	}
 	.hero, .composer, .post-card, .side-card { background: #fff; border: 1rpx solid #e5e9ef; border-radius: 8px; box-shadow: 0 14rpx 34rpx rgba(18, 32, 46, .06); }
 	.hero { position: relative; display: grid; grid-template-columns: 330rpx minmax(0, 1fr); gap: 30rpx; padding: 30rpx 118rpx 30rpx 30rpx; align-items: center; background: linear-gradient(135deg, #ffffff 0%, #f6faf8 58%, #fff8f0 100%); }
 	.cover { height: 240rpx; border-radius: 8px; overflow: hidden; background: linear-gradient(135deg, #eaf3ef, #f7efe4); display: flex; align-items: center; justify-content: center; color: #12372a; font-size: 38rpx; font-weight: 900; }

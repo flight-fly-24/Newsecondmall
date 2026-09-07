@@ -1,0 +1,65 @@
+---
+version: 2.0
+
+env:
+  resource:
+    type: docker
+    arch: X86
+    class: 2U8G
+
+steps:
+  PRE_BUILD:
+    - checkout:
+        name: checkout
+        inputs:
+          scm: codehub
+          url: https://codehub.devcloud.cn-north-4.huaweicloud.com/a111c887c5a545eda4c6976ba10c1a75/NewSecondMall.git
+          branch: ${codeBranch}
+          lfs: true
+          submodule: true
+          depth: 1
+
+  BUILD:
+    - npm:
+        name: build-frontend
+        image: cloudbuild@nodejs18
+        inputs:
+          command: |-
+            set -euo pipefail
+            echo "=====当前目录====="
+            pwd
+            ls -la
+            if [ ! -d shopping_front ]; then
+              pom="$(find . /data /var /workspace /tmp -path '*/shopping_back/shopping_back/pom.xml' 2>/dev/null | head -n 1)"
+              if [ -z "${pom:-}" ]; then
+                echo "找不到仓库根目录"
+                exit 1
+              fi
+              cd "$(dirname "$(dirname "$(dirname "$pom")")")"
+            fi
+            export PATH="$PATH:$HOME/.npm-global/bin"
+            npm config set cache /npmcache
+            npm config set prefix "$HOME/.npm-global"
+            npm config set registry https://repo.huaweicloud.com/repository/npm/
+            cd shopping_front
+            npm ci
+            npm run build:h5
+    - maven:
+        name: build-backend
+        image: cloudbuild@maven3.9.5-jdk17
+        inputs:
+          cache: false
+          command: |-
+            set -euo pipefail
+            export DB_PASSWORD="${CI_DB_PASSWORD:?CI_DB_PASSWORD is required}"
+            export MYSQL_ROOT_PASSWORD="${CI_MYSQL_ROOT_PASSWORD:?CI_MYSQL_ROOT_PASSWORD is required}"
+            if [ ! -f shopping_back/shopping_back/pom.xml ]; then
+              pom="$(find . /data /var /workspace /tmp -path '*/shopping_back/shopping_back/pom.xml' 2>/dev/null | head -n 1)"
+              if [ -z "${pom:-}" ]; then
+                echo "找不到仓库根目录"
+                exit 1
+              fi
+              cd "$(dirname "$(dirname "$(dirname "$pom")")")"
+            fi
+            cd shopping_back/shopping_back
+            mvn -B -ntp -DskipTests package

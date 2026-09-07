@@ -1,0 +1,101 @@
+---
+version: 2.0
+
+env:
+  resource:
+    type: docker
+    arch: X86
+    class: 2U8G
+
+steps:
+  PRE_BUILD:
+    - checkout:
+        name: checkout
+        inputs:
+          scm: codehub
+          url: https://codehub.devcloud.cn-north-4.huaweicloud.com/a111c887c5a545eda4c6976ba10c1a75/NewSecondMall.git
+          branch: ${codeBranch}
+          lfs: true
+          submodule: true
+          depth: 1
+
+  BUILD:
+    - maven:
+        name: e2e-secrets
+        image: cloudbuild@maven3.9.5-jdk17
+        inputs:
+          cache: false
+          command: |-
+            set -euo pipefail
+            if [ ! -f tests/e2e/Dockerfile.ci ]; then
+              pom="$(find . /data /var /workspace /tmp -path '*/shopping_back/shopping_back/pom.xml' 2>/dev/null | head -n 1)"
+              if [ -z "${pom:-}" ]; then
+                echo "找不到仓库根目录"
+                exit 1
+              fi
+              cd "$(dirname "$(dirname "$(dirname "$pom")")")"
+            fi
+            printf 'CI_DB_PASSWORD=%s\nCI_MYSQL_ROOT_PASSWORD=%s\n' \
+              "${CI_DB_PASSWORD:?CI_DB_PASSWORD is required}" \
+              "${CI_MYSQL_ROOT_PASSWORD:?CI_MYSQL_ROOT_PASSWORD is required}" \
+              > tests/e2e/.ci-secrets
+            echo "已写入 tests/e2e/.ci-secrets"
+    # CodeArts 的 docker 插件只允许 build/tag/push/pull/save/login，不能
+    # docker run / docker compose（8 月 27 日已实测）。E2E 因此在
+    # tests/e2e/Dockerfile.ci 的镜像构建里跑完整微服务拓扑，再用 export
+    # 目标把退出码和 4 份产物带出来。
+    - docker:
+        name: e2e-test
+        inputs:
+          command: |-
+            docker pull swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/library/debian:bookworm-slim
+            docker build --build-arg DOCKER_HUB=swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io --build-arg CI_DB_PASSWORD=${CI_DB_PASSWORD} --build-arg CI_MYSQL_ROOT_PASSWORD=${CI_MYSQL_ROOT_PASSWORD} -f tests/e2e/Dockerfile.ci -t newsecondmall-e2e-export:ci --target export .
+            docker save newsecondmall-e2e-export:ci -o e2e-image.tar
+          ignore_fail: true
+    - maven:
+        name: e2e-extract
+        image: cloudbuild@maven3.9.5-jdk17
+        inputs:
+          cache: false
+          command: |-
+            set -euo pipefail
+            bash scripts/ci-e2e-extract.sh
+          ignore_fail: true
+    - upload_artifact:
+        name: upload-e2e-surefire
+        inputs:
+          path: "e2e-surefire-reports.tgz"
+          custom_upload_path: /NewSecondMall-e2e/
+          ignore_fail: true
+    - upload_artifact:
+        name: upload-e2e-artifacts
+        inputs:
+          path: "e2e-artifacts.tgz"
+          custom_upload_path: /NewSecondMall-e2e/
+          ignore_fail: true
+    - upload_artifact:
+        name: upload-e2e-api-reports
+        inputs:
+          path: "e2e-api-reports.tgz"
+          custom_upload_path: /NewSecondMall-e2e/
+          ignore_fail: true
+    - upload_artifact:
+        name: upload-e2e-run-results
+        inputs:
+          path: "e2e-run-results.tgz"
+          custom_upload_path: /NewSecondMall-e2e/
+          ignore_fail: true
+    - maven:
+        name: e2e-gate
+        image: cloudbuild@maven3.9.5-jdk17
+        inputs:
+          cache: false
+          command: |-
+            set -euo pipefail
+            if [ ! -f e2e-exit-code.txt ]; then
+              echo "E2E 没有写出退出码，测试步骤可能没跑完"
+              exit 1
+            fi
+            status="$(tr -d '[:space:]' < e2e-exit-code.txt)"
+            echo "E2E 退出码: ${status}"
+            exit "${status}"

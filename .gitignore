@@ -25,3 +25,11 @@ hs_err_pid*
 NewSecondMall-db.local.cmd
 NewSecondMall-db.local.json
 application-local.properties
+node_modules/
+tests/api/reports/
+e2e-tests/reports/
+tests/e2e/.ci-secrets
+tests/e2e/results/
+ci-artifacts/
+tests/unit/results/
+**/target/

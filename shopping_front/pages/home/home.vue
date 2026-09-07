@@ -69,8 +69,8 @@
 							<text class="hero-chip" @click="activeSort = 'credit'">信用优先</text>
 						</view>
 						<view class="hero-actions">
-							<view class="primary-btn" @click="setScene('new')">看新品</view>
-							<view class="secondary-btn" @click="setScene('used')">淘二手</view>
+							<view class="scene-action" :class="activeScene === 'new' ? 'primary-btn' : 'secondary-btn'" @click="setScene('new')">看新品</view>
+							<view class="scene-action" :class="activeScene === 'used' ? 'primary-btn' : 'secondary-btn'" @click="setScene('used')">淘二手</view>
 						</view>
 					</view>
 					<view class="hero-board">
@@ -309,7 +309,7 @@
 				return [
 					{ icon: '✓', title: '新品严选', desc: '正品与售后', scene: 'new' },
 					{ icon: '↻', title: '闲置好物', desc: '信用可见', scene: 'used' },
-					{ icon: 'AI', title: '议价助手', desc: '生成验货清单', path: '/pages/message/message' }
+					{ icon: 'AI', title: '智能助手', desc: '问一问', path: '/pages/ai-assistant/ai-assistant' }
 				]
 			},
 			guardrails() {
@@ -694,6 +694,7 @@
 	.search-action,
 	.primary-btn,
 	.secondary-btn,
+	.scene-action,
 	.story-link {
 		display: flex;
 		align-items: center;
@@ -874,9 +875,11 @@
 		margin-top: 20px;
 	}
 	.primary-btn,
-	.secondary-btn {
+	.secondary-btn,
+	.scene-action {
 		height: 44px;
 		padding: 0 24px;
+		cursor: pointer;
 	}
 	.primary-btn {
 		background: #12372a;

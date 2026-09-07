@@ -111,10 +111,17 @@ public class CenterService {
         String normalized = normalizeInteractionType(type);
         String title = request == null || isBlank(request.title()) ? "未命名商品" : request.title().trim();
         String storeName = request == null || isBlank(request.storeName()) ? "未命名店铺" : request.storeName().trim();
+        Integer goodsId = parsePositiveId(request == null ? null : request.itemId());
         if ("favorite".equals(normalized)) {
-            mapper.addFavorite(user.getUserId(), title);
+            if (goodsId == null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "商品信息缺失");
+            }
+            mapper.addFavorite(user.getUserId(), goodsId, title);
         } else if ("history".equals(normalized)) {
-            mapper.addBrowse(user.getUserId(), title);
+            if (goodsId == null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "商品信息缺失");
+            }
+            mapper.addBrowse(user.getUserId(), goodsId, title);
         } else if ("follow".equals(normalized)) {
             mapper.addFollow(user.getUserId(), storeName);
         } else {
@@ -333,6 +340,18 @@ public class CenterService {
 
     private boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
+    }
+
+    private Integer parsePositiveId(String raw) {
+        if (isBlank(raw)) {
+            return null;
+        }
+        try {
+            int value = Integer.parseInt(raw.trim());
+            return value > 0 ? value : null;
+        } catch (NumberFormatException ignored) {
+            return null;
+        }
     }
 
     private String normalizeInteractionType(String type) {

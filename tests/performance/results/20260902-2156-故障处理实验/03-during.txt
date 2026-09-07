@@ -1,0 +1,13 @@
+=== 3. 故障期间各服务表现 ===
+--- 3.1 话题列表（interaction，不依赖 catalog）---
+GET /api/topics -> 200 (0.002397s)
+--- 3.2 重新登录（user，不依赖 catalog）---
+POST /api/auth/login -> 200 (0.074080s)
+--- 3.3 加购（trade 需调 catalog 校验商品，应快速返回设计好的错误，而不是长时间挂起）---
+{"timestamp":"2026-09-02T13:56:58.677+00:00","status":503,"error":"Service Unavailable","path":"/api/cart"}
+POST /api/cart -> 503 (0.011113s)
+--- 3.4 下单（同样依赖 catalog 商品快照）---
+{"code":0,"message":"ok","data":[{"id":"3","shop":"seller2 shop","status":"已完成","title":"松果 Pad 11 学习平板","cover":"/static/goods/songuo-pad.jpg","type":"新品","service":"平台担保","amount":2299.00,"goodsId":"1002","reviewable":true,"reviewed":false,"productScore":null,"sellerScore":null,"reviewContent":""},{"id":"2","shop":"seller2 shop","status":"已完成","title":"ViewTop 27 英寸 2K 显示器","cover":"/static/goods/viewtop-monitor.jpg","type":"二手","service":"平台担保","amount":680.00,"goodsId":"1003","reviewable":true,"reviewed":false,"productScore":null,"sellerScore":null,"reviewContent":""},{"id":"1","shop":"卖家","status":"已完成","title":"AirWave Pro 降噪耳机","cover":"/static/goods/airwave-pro.jpg","type":"新品","service":"平台担保","amount":699.00,"goodsId":"1001","reviewable":true,"reviewed":false,"productScore":null,"sellerScore":null,"reviewContent":""}]}
+POST /api/orders -> 200 (0.009342s)
+--- 3.5 商品列表（catalog 已停，预期失败）---
+GET /api/products -> 000 (0.000123s)

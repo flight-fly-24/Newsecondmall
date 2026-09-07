@@ -58,8 +58,12 @@
 				return this.address ? `${this.address.name} ${this.address.phone} ${this.address.region} ${this.address.detail}` : '未设置地址，可在个人中心维护'
 			}
 		},
-		onShow() {
-			this.items = getCartItems()
+		async onShow() {
+			try {
+				this.items = await getCartItems()
+			} catch (e) {
+				this.items = []
+			}
 			this.address = getDefaultAddress()
 		},
 		methods: {
@@ -74,7 +78,7 @@
 				this.paying = true
 				try {
 					await createOrders(this.selectedItems.map((item) => ({ goodsId: item.id, quantity: item.qty || 1 })))
-					clearCheckedCartItems()
+					await clearCheckedCartItems()
 					uni.navigateTo({ url: '/pages/order/pay-result' })
 				} catch (e) {
 					if (e && e.statusCode === 401) {

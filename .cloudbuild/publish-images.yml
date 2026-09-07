@@ -1,0 +1,93 @@
+---
+version: 2.0
+
+env:
+  resource:
+    type: docker
+    arch: X86
+    class: 2U8G
+
+steps:
+  PRE_BUILD:
+    - checkout:
+        name: checkout
+        inputs:
+          scm: codehub
+          url: https://codehub.devcloud.cn-north-4.huaweicloud.com/a111c887c5a545eda4c6976ba10c1a75/NewSecondMall.git
+          branch: ${codeBranch}
+          lfs: true
+          submodule: true
+          depth: 1
+
+  BUILD:
+    - maven:
+        name: prepare-release
+        image: cloudbuild@maven3.9.5-jdk17
+        inputs:
+          cache: false
+          command: |-
+            set -eu
+            if [ ! -f scripts/ci-publish-prepare-job.sh ]; then
+              echo "cwd=$(pwd)"
+              ls -la
+              echo "找不到 ci-publish-prepare-job.sh"
+              exit 1
+            fi
+            bash scripts/ci-publish-prepare-job.sh
+    - upload_artifact:
+        name: upload-prepare-evidence
+        inputs:
+          path: "ci-artifacts/**"
+          custom_upload_path: /NewSecondMall-publish-images/
+          ignore_fail: true
+    - docker:
+        name: publish-images
+        inputs:
+          command: |-
+            docker login swr.cn-north-4.myhuaweicloud.com -u ${SWR_USERNAME} -p ${SWR_PASSWORD}
+            docker pull swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/library/maven:3-eclipse-temurin-17
+            docker pull swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/library/eclipse-temurin:17-jre-alpine
+            docker pull swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/library/node:18-alpine
+            docker pull swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/library/nginx:1.27-alpine
+            docker build --build-arg DOCKER_HUB=swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io -f deploy/backend.Dockerfile -t swr.cn-north-4.myhuaweicloud.com/songguo/shop-backend:release-${PIPELINE_NUMBER}-${COMMIT_ID_SHORTER} .
+            docker build --build-arg DOCKER_HUB=swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io -f deploy/frontend.Dockerfile -t swr.cn-north-4.myhuaweicloud.com/songguo/shop-frontend:release-${PIPELINE_NUMBER}-${COMMIT_ID_SHORTER} .
+            docker build --build-arg DOCKER_HUB=swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io --build-arg MODULE_DIR=services/user-service --build-arg JAR_NAME=user-service-1.0.0.jar -f deploy/microservice.Dockerfile -t swr.cn-north-4.myhuaweicloud.com/songguo/shop-user-service:release-${PIPELINE_NUMBER}-${COMMIT_ID_SHORTER} .
+            docker build --build-arg DOCKER_HUB=swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io --build-arg MODULE_DIR=services/catalog-service --build-arg JAR_NAME=catalog-service-1.0.0.jar -f deploy/microservice.Dockerfile -t swr.cn-north-4.myhuaweicloud.com/songguo/shop-catalog-service:release-${PIPELINE_NUMBER}-${COMMIT_ID_SHORTER} .
+            docker build --build-arg DOCKER_HUB=swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io --build-arg MODULE_DIR=services/trade-service --build-arg JAR_NAME=trade-service-1.0.0.jar -f deploy/microservice.Dockerfile -t swr.cn-north-4.myhuaweicloud.com/songguo/trade-service:release-${PIPELINE_NUMBER}-${COMMIT_ID_SHORTER} .
+            docker build --build-arg DOCKER_HUB=swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io --build-arg MODULE_DIR=services/interaction-service --build-arg JAR_NAME=interaction-service-1.0.0.jar -f deploy/microservice.Dockerfile -t swr.cn-north-4.myhuaweicloud.com/songguo/interaction-service:release-${PIPELINE_NUMBER}-${COMMIT_ID_SHORTER} .
+            docker push swr.cn-north-4.myhuaweicloud.com/songguo/shop-backend:release-${PIPELINE_NUMBER}-${COMMIT_ID_SHORTER}
+            docker push swr.cn-north-4.myhuaweicloud.com/songguo/shop-frontend:release-${PIPELINE_NUMBER}-${COMMIT_ID_SHORTER}
+            docker push swr.cn-north-4.myhuaweicloud.com/songguo/shop-user-service:release-${PIPELINE_NUMBER}-${COMMIT_ID_SHORTER}
+            docker push swr.cn-north-4.myhuaweicloud.com/songguo/shop-catalog-service:release-${PIPELINE_NUMBER}-${COMMIT_ID_SHORTER}
+            docker push swr.cn-north-4.myhuaweicloud.com/songguo/trade-service:release-${PIPELINE_NUMBER}-${COMMIT_ID_SHORTER}
+            docker push swr.cn-north-4.myhuaweicloud.com/songguo/interaction-service:release-${PIPELINE_NUMBER}-${COMMIT_ID_SHORTER}
+    - maven:
+        name: finalize-publish
+        image: cloudbuild@maven3.9.5-jdk17
+        inputs:
+          cache: false
+          command: |-
+            set -eu
+            if [ ! -f scripts/ci-publish-finalize-job.sh ]; then
+              echo "找不到 ci-publish-finalize-job.sh"
+              exit 1
+            fi
+            bash scripts/ci-publish-finalize-job.sh
+    - upload_artifact:
+        name: upload-publish-evidence
+        inputs:
+          path: "ci-artifacts/**"
+          custom_upload_path: /NewSecondMall-publish-images/
+          ignore_fail: true
+    - maven:
+        name: publish-gate
+        image: cloudbuild@maven3.9.5-jdk17
+        inputs:
+          cache: false
+          command: |-
+            set -eu
+            if [ ! -f scripts/ci-publish-gate.sh ]; then
+              echo "找不到 ci-publish-gate.sh"
+              exit 1
+            fi
+            bash scripts/ci-publish-gate.sh

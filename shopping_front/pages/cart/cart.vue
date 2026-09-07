@@ -64,7 +64,7 @@
 									</view>
 								</view>
 								<view class="item-actions">
-									<text @click="findSimilar(item)">找相似</text>
+									<text @click.stop="findSimilar(item)">找相似</text>
 									<text @click="remove(item.id)">删除</text>
 								</view>
 							</view>
@@ -108,11 +108,14 @@
 <script>
 	import { getCartItems, updateCartItem, removeCartItem, groupCartByShop } from '@/utils/cart.js'
 	import { isImageUrl, resolveImageUrl } from '@/utils/media.js'
+	import { fetchProduct } from '@/services/shop.js'
+	import { getToken, pickErrorMessage } from '@/utils/auth.js'
 
 	export default {
 		data() {
 			return {
-				items: []
+				items: [],
+				loginHinted: false
 			}
 		},
 		computed: {
@@ -139,8 +142,17 @@
 			resolvedCover(item) {
 				return item.cover
 			},
-			loadData() {
-				this.items = getCartItems()
+			async loadData() {
+				try {
+					this.items = await getCartItems()
+					if (!getToken() && !this.loginHinted) {
+						this.loginHinted = true
+						uni.showToast({ title: '登录后查看购物车', icon: 'none' })
+					}
+				} catch (e) {
+					this.items = []
+					uni.showToast({ title: pickErrorMessage(e) || '购物车加载失败', icon: 'none' })
+				}
 			},
 			goBrowse() {
 				uni.switchTab({ url: '/pages/browse/browse' })
@@ -152,28 +164,61 @@
 				}
 				uni.navigateTo({ url })
 			},
-			toggleChecked(id) {
+			async toggleChecked(id) {
 				const current = this.items.find((item) => item.id === id)
 				if (!current) return
-				updateCartItem(id, { checked: !current.checked })
-				this.loadData()
+				try {
+					this.items = await updateCartItem(id, { checked: !current.checked })
+				} catch (e) {
+					uni.showToast({ title: pickErrorMessage(e) || '更新失败', icon: 'none' })
+				}
 			},
-			changeQty(item, delta) {
+			async changeQty(item, delta) {
 				const nextQty = item.qty + delta
 				if (nextQty < 1) {
 					this.remove(item.id)
 					return
 				}
-				updateCartItem(item.id, { qty: nextQty })
-				this.loadData()
+				try {
+					this.items = await updateCartItem(item.id, { qty: nextQty })
+				} catch (e) {
+					uni.showToast({ title: pickErrorMessage(e) || '更新失败', icon: 'none' })
+				}
 			},
-			remove(id) {
-				removeCartItem(id)
-				this.loadData()
-				uni.showToast({ title: '已删除商品', icon: 'none' })
+			async remove(id) {
+				try {
+					this.items = await removeCartItem(id)
+					uni.showToast({ title: '已删除商品', icon: 'none' })
+				} catch (e) {
+					uni.showToast({ title: pickErrorMessage(e) || '删除失败', icon: 'none' })
+				}
 			},
-			findSimilar(item) {
-				uni.showToast({ title: '已为你筛选相似商品：' + item.title, icon: 'none' })
+			async findSimilar(item) {
+				if (!item) return
+				let category = String(item.category || '').trim()
+				if (!category && item.id) {
+					try {
+						const body = await fetchProduct(item.id)
+						const detail = body && body.code === 0 ? body.data : null
+						if (detail) {
+							category = String(detail.category || '').trim()
+							if (detail.scene) item.scene = detail.scene
+						}
+					} catch (e) {
+						console.warn('读取商品分类失败', e)
+					}
+				}
+				const keyword = category || String(item.title || '').trim()
+				if (!keyword) {
+					uni.showToast({ title: '暂无法找到相似商品', icon: 'none' })
+					return
+				}
+				const query = [
+					'keyword=' + encodeURIComponent(keyword),
+					'similar=1',
+					item.id ? 'excludeId=' + encodeURIComponent(item.id) : ''
+				].filter(Boolean).join('&')
+				uni.navigateTo({ url: '/pages/search/searchList?' + query })
 			},
 			checkout() {
 				if (!this.selectedItems.length) {

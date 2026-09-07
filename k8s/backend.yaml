@@ -1,0 +1,135 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: upload-data
+  namespace: shop
+  labels:
+    app.kubernetes.io/name: backend
+    app.kubernetes.io/part-of: songuo-shop
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  namespace: shop
+  labels:
+    app.kubernetes.io/name: backend
+    app.kubernetes.io/part-of: songuo-shop
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: backend
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: shop
+  labels:
+    app.kubernetes.io/name: backend
+    app.kubernetes.io/part-of: songuo-shop
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: backend
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: backend
+        app.kubernetes.io/part-of: songuo-shop
+    spec:
+      imagePullSecrets:
+        - name: swr-secret
+      containers:
+        - name: backend
+          # 发版只改 k8s/kustomization.yaml 的 newTag，不要覆盖已 push 的旧 tag
+          image: swr.cn-north-4.myhuaweicloud.com/songguo/shop-backend:release-20260827
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+              name: http
+          env:
+            - name: DB_URL
+              value: jdbc:mysql://mysql:3306/shop_db?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=UTF-8&allowPublicKeyRetrieval=true&useSSL=false
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: shop-db
+                  key: DB_USERNAME
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: shop-db
+                  key: DB_PASSWORD
+            - name: APP_CORS_PATTERNS
+              valueFrom:
+                configMapKeyRef:
+                  name: shop-app
+                  key: APP_CORS_PATTERNS
+            - name: APP_UPLOAD_DIR
+              value: /app/uploads
+            - name: TZ
+              valueFrom:
+                configMapKeyRef:
+                  name: shop-app
+                  key: TZ
+            - name: JAVA_TOOL_OPTIONS
+              value: -XX:MaxRAMPercentage=75.0
+            - name: AI_BARGAIN_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: shop-db
+                  key: AI_BARGAIN_API_KEY
+                  optional: true
+            - name: DASH_SCOPE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: shop-db
+                  key: DASH_SCOPE_API_KEY
+                  optional: true
+          resources:
+            requests:
+              cpu: 200m
+              memory: 384Mi
+            limits:
+              cpu: "1"
+              memory: 768Mi
+          volumeMounts:
+            - name: uploads
+              mountPath: /app/uploads
+          startupProbe:
+            httpGet:
+              path: /api/products
+              port: 8080
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 36
+          readinessProbe:
+            httpGet:
+              path: /api/products
+              port: 8080
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /api/products
+              port: 8080
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 6
+      volumes:
+        - name: uploads
+          persistentVolumeClaim:
+            claimName: upload-data

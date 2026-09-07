@@ -1,0 +1,4017 @@
+{
+  "info": {
+    "_postman_id": "70147942-f272-48bd-a019-b27cbbee4409",
+    "name": "Soft Shop API Tests",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "55686543",
+    "_collection_link": "https://go.postman.co/collection/55686543-70147942-f272-48bd-a019-b27cbbee4409?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "API-AUTH-REG-01-注册合法买家",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-AUTH-REG-01 HTTP 200\", function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"API-AUTH-REG-01 业务码 0\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(0);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "const timestamp = Date.now();",
+              "pm.collectionVariables.set(\"unique_username\", \"ci_buyer_\" + timestamp);",
+              "pm.collectionVariables.set(\"unique_phone\", \"19\" + String(timestamp).slice(-9));"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"{{unique_username}}\",\n  \"password\": \"test123\",\n  \"phone\": \"{{unique_phone}}\",\n  \"role\": \"buyer\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/register",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "register"
+          ]
+        },
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "API-AUTH-REG-02-注册合法卖家",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"{{unique_username}}\",\n  \"password\": \"test123\",\n  \"phone\": \"{{unique_phone}}\",\n  \"role\": \"seller\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/auth/register",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-AUTH-REG-02 HTTP 200\", function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"API-AUTH-REG-02 业务码 0\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(0);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "const timestamp = Date.now();",
+              "pm.collectionVariables.set(\"unique_username\", \"ci_seller_\" + timestamp);",
+              "pm.collectionVariables.set(\"unique_phone\", \"19\" + String(timestamp).slice(-9));"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-AUTH-REG-03-重复用户名",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"demo\",\n  \"password\": \"test123\",\n  \"phone\": \"{{unique_phone}}\",\n  \"role\": \"buyer\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/auth/register",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-AUTH-REG-03 HTTP 409\", function () {",
+              "  pm.response.to.have.status(409);",
+              "});",
+              "",
+              "pm.test(\"API-AUTH-REG-03 业务码 409\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(409);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "pm.collectionVariables.set(\"unique_phone\", \"19\" + String(Date.now()).slice(-9));"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-AUTH-REG-04-用户名过短",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"username\": \"ab\",\r\n  \"password\": \"test123\",\r\n  \"phone\": \"13800138003\",\r\n  \"role\": \"seller\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/auth/register",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-AUTH-REG-04 HTTP 400\", function () {",
+              "  pm.response.to.have.status(400);",
+              "});",
+              "",
+              "pm.test(\"API-AUTH-REG-04 业务码 400\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(400);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-AUTH-REG-05-密码过短",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"username\": \"testbuyer02\",\r\n  \"password\": \"123\",\r\n  \"phone\": \"13800138004\",\r\n  \"role\": \"buyer\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/auth/register",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-AUTH-REG-05 HTTP 400\", function () {",
+              "  pm.response.to.have.status(400);",
+              "});",
+              "",
+              "pm.test(\"API-AUTH-REG-05 业务码 400\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(400);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-AUTH-REG-06-手机号格式错误",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"username\": \"testbuyer03\",\r\n  \"password\": \"test123\",\r\n  \"phone\": \"12345\",\r\n  \"role\": \"buyer\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/auth/register",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-AUTH-REG-06 HTTP 400\", function () {",
+              "  pm.response.to.have.status(400);",
+              "});",
+              "",
+              "pm.test(\"API-AUTH-REG-06 业务码 400\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(400);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-AUTH-REG-07-非法注册管理员",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"username\": \"testadmin01\",\r\n  \"password\": \"test123\",\r\n  \"phone\": \"13800138005\",\r\n  \"role\": \"admin\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/auth/register",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-AUTH-REG-07 HTTP 400\", function () {",
+              "  pm.response.to.have.status(400);",
+              "});",
+              "",
+              "pm.test(\"API-AUTH-REG-07 业务码 400\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(400);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-AUTH-LOGIN-01-买家正确登录",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"demo\",\n  \"password\": \"demo123\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/auth/login",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-AUTH-LOGIN-01 HTTP 200\", function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"API-AUTH-LOGIN-01 业务码 0\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(0);",
+              "});",
+              "",
+              "pm.test(\"API-AUTH-LOGIN-01 返回有效 Token\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(body.data.token).to.be.a(\"string\").and.not.empty;",
+              "});",
+              "pm.collectionVariables.set(\"buyer_token\", pm.response.json().data.token);"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-AUTH-LOGIN-02-卖家正确登录",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"seller\",\n  \"password\": \"seller123\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/auth/login",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-AUTH-LOGIN-02 HTTP 200\", function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"API-AUTH-LOGIN-02 业务码 0\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(0);",
+              "});",
+              "",
+              "pm.test(\"API-AUTH-LOGIN-02 返回有效 Token\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(body.data.token).to.be.a(\"string\").and.not.empty;",
+              "});",
+              "pm.collectionVariables.set(\"seller_token\", pm.response.json().data.token);"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-AUTH-LOGIN-03-密码错误",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"demo\",\n  \"password\": \"definitely-wrong\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/auth/login",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-AUTH-LOGIN-03 HTTP 401\", function () {",
+              "  pm.response.to.have.status(401);",
+              "});",
+              "",
+              "pm.test(\"API-AUTH-LOGIN-03 业务码 401\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(401);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-AUTH-LOGIN-04-用户名未注册",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"username\": \"notexist01\",\r\n  \"password\": \"test123\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/auth/login",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-AUTH-LOGIN-04 HTTP 401\", function () {",
+              "  pm.response.to.have.status(401);",
+              "});",
+              "",
+              "pm.test(\"API-AUTH-LOGIN-04 业务码 401\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(401);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-AUTH-LOGIN-05-用户名过短",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"username\": \"ab\",\r\n  \"password\": \"test123\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/auth/login",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-AUTH-LOGIN-05 HTTP 400\", function () {",
+              "  pm.response.to.have.status(400);",
+              "});",
+              "",
+              "pm.test(\"API-AUTH-LOGIN-05 业务码 400\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(400);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-AUTH-LOGIN-06-密码过短",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"username\": \"testbuyer01\",\r\n  \"password\": \"123\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/auth/login",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-AUTH-LOGIN-06 HTTP 400\", function () {",
+              "  pm.response.to.have.status(400);",
+              "});",
+              "",
+              "pm.test(\"API-AUTH-LOGIN-06 业务码 400\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(400);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-AUTH-LOGIN-07-用户名为空",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"username\": \"\",\r\n  \"password\": \"test123\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/auth/login",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-AUTH-LOGIN-07 HTTP 400\", function () {",
+              "  pm.response.to.have.status(400);",
+              "});",
+              "",
+              "pm.test(\"API-AUTH-LOGIN-07 业务码 400\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(400);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-AUTH-LOGIN-08-密码为空",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"username\": \"testbuyer01\",\r\n  \"password\": \"\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/auth/login",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-AUTH-LOGIN-08 HTTP 400\", function () {",
+              "  pm.response.to.have.status(400);",
+              "});",
+              "",
+              "pm.test(\"API-AUTH-LOGIN-08 业务码 400\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(400);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-AUTH-LOGIN-09-冻结账号登录",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"ci_disabled\",\n  \"password\": \"demo123\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/auth/login",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-AUTH-LOGIN-09 HTTP 403\", function () {",
+              "  pm.response.to.have.status(403);",
+              "});",
+              "",
+              "pm.test(\"API-AUTH-LOGIN-09 业务码 403\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(403);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-AUTH-ME-01-买家有效Token",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"username\": \"testbuyer01\",\r\n  \"password\": \"test123\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/auth/me",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{buyer_token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-AUTH-ME-01 HTTP 200\", function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"API-AUTH-ME-01 业务码 0\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(0);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-AUTH-ME-02-卖家有效Token",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"username\": \"testbuyer01\",\r\n  \"password\": \"test123\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/auth/me",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{seller_token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-AUTH-ME-02 HTTP 200\", function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"API-AUTH-ME-02 业务码 0\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(0);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-AUTH-ME-03-不携带Token",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"username\": \"testbuyer01\",\r\n  \"password\": \"test123\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/auth/me",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-AUTH-ME-03 HTTP 401\", function () {",
+              "  pm.response.to.have.status(401);",
+              "});",
+              "",
+              "pm.test(\"API-AUTH-ME-03 业务码 401\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(401);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-AUTH-ME-04-伪造Token",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"username\": \"testbuyer01\",\r\n  \"password\": \"test123\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/auth/me",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{ci_invalid_token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-AUTH-ME-04 HTTP 401\", function () {",
+              "  pm.response.to.have.status(401);",
+              "});",
+              "",
+              "pm.test(\"API-AUTH-ME-04 业务码 401\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(401);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-AUTH-ME-05-Bearer后为空",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"username\": \"testbuyer01\",\r\n  \"password\": \"test123\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/auth/me",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-AUTH-ME-05 HTTP 401\", function () {",
+              "  pm.response.to.have.status(401);",
+              "});",
+              "",
+              "pm.test(\"API-AUTH-ME-05 业务码 401\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(401);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-AUTH-ME-06-Token不带Bearer前缀",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "{{buyer_token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"username\": \"testbuyer01\",\r\n  \"password\": \"test123\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/auth/me",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-AUTH-ME-06 HTTP 401\", function () {",
+              "  pm.response.to.have.status(401);",
+              "});",
+              "",
+              "pm.test(\"API-AUTH-ME-06 业务码 401\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(401);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-AUTH-PROFILE-01-使用HTTPS地址更新头像",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"avatarUrl\": \"https://example.com/avatar.png\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/auth/me/profile",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{buyer_token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-AUTH-PROFILE-01 HTTP 200\", function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"API-AUTH-PROFILE-01 业务码 0\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(0);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-AUTH-PROFILE-02-使用系统文件路径更新头像",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"avatarUrl\": \"/files/avatar.png\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/auth/me/profile",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{buyer_token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-AUTH-PROFILE-02 HTTP 200\", function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"API-AUTH-PROFILE-02 业务码 0\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(0);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-AUTH-PROFILE-03-使用非法格式头像地址",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"avatarUrl\": \"ftp://example.com/avatar.png\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/auth/me/profile",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{buyer_token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-AUTH-PROFILE-03 HTTP 400\", function () {",
+              "  pm.response.to.have.status(400);",
+              "});",
+              "",
+              "pm.test(\"API-AUTH-PROFILE-03 业务码 400\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(400);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-AUTH-PROFILE-04-头像地址超过500字符",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"avatarUrl\": \"https://example.com/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.png\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/auth/me/profile",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{buyer_token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-AUTH-PROFILE-04 HTTP 400\", function () {",
+              "  pm.response.to.have.status(400);",
+              "});",
+              "",
+              "pm.test(\"API-AUTH-PROFILE-04 业务码 400\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(400);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-AUTH-PROFILE-05-不携带Token更新头像",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"avatarUrl\": \"https://example.com/new-avatar.png\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/auth/me/profile",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-AUTH-PROFILE-05 HTTP 401\", function () {",
+              "  pm.response.to.have.status(401);",
+              "});",
+              "",
+              "pm.test(\"API-AUTH-PROFILE-05 业务码 401\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(401);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-AUTH-PROFILE-06-使用伪造Token更新头像",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"avatarUrl\": \"https://example.com/new-avatar.png\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/auth/me/profile",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{ci_invalid_token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-AUTH-PROFILE-06 HTTP 401\", function () {",
+              "  pm.response.to.have.status(401);",
+              "});",
+              "",
+              "pm.test(\"API-AUTH-PROFILE-06 业务码 401\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(401);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-AUTH-PROFILE-07-清空头像地址",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"avatarUrl\": \"\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/auth/me/profile",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{buyer_token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-AUTH-PROFILE-07 HTTP 200\", function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"API-AUTH-PROFILE-07 业务码 0\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(0);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-AUTH-PROFILE-08-不提供请求Body",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/auth/me/profile",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{buyer_token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-AUTH-PROFILE-08 HTTP 400\", function () {",
+              "  pm.response.to.have.status(400);",
+              "});",
+              "",
+              "pm.test(\"API-AUTH-PROFILE-08 业务码 400\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(400);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-AUTH-SEARCH-01-使用完整用户名搜索",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/auth/search-users?keyword=testbuyer01",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{buyer_token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-AUTH-SEARCH-01 HTTP 200\", function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"API-AUTH-SEARCH-01 业务码 0\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(0);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-AUTH-SEARCH-02-使用部分用户名模糊搜索",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/auth/search-users?keyword=test",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{buyer_token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-AUTH-SEARCH-02 HTTP 200\", function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"API-AUTH-SEARCH-02 业务码 0\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(0);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-AUTH-SEARCH-03-搜索不存在的用户名",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/auth/search-users?keyword=notexist999",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{buyer_token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-AUTH-SEARCH-03 HTTP 200\", function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"API-AUTH-SEARCH-03 业务码 0\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(0);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-AUTH-SEARCH-04-搜索关键词为空字符串",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/auth/search-users?keyword=",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{buyer_token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-AUTH-SEARCH-04 HTTP 200\", function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"API-AUTH-SEARCH-04 业务码 0\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(0);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-AUTH-SEARCH-05-搜索关键词只有空格",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/auth/search-users?keyword=%20%20%20",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{buyer_token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-AUTH-SEARCH-05 HTTP 200\", function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"API-AUTH-SEARCH-05 业务码 0\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(0);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-AUTH-SEARCH-06-关键词前后包含空格",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/auth/search-users?keyword=%20testbuyer01%20",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{buyer_token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-AUTH-SEARCH-06 HTTP 200\", function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"API-AUTH-SEARCH-06 业务码 0\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(0);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-AUTH-SEARCH-07-缺少keyword参数",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/auth/search-users",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{buyer_token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-AUTH-SEARCH-07 HTTP 400\", function () {",
+              "  pm.response.to.have.status(400);",
+              "});",
+              "",
+              "pm.test(\"API-AUTH-SEARCH-07 业务码 400\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(400);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-AUTH-SEARCH-08-输入SQL注入测试字符串",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/auth/search-users?keyword=' OR 1=1 --",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{buyer_token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-AUTH-SEARCH-08 HTTP 200\", function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"API-AUTH-SEARCH-08 业务码 0\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(0);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-AUTH-SEARCH-09-输入SQL通配符",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/auth/search-users?keyword=%25",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{buyer_token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-AUTH-SEARCH-09 HTTP 200\", function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"API-AUTH-SEARCH-09 业务码 0\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(0);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-AUTH-SEARCH-10-不携带Token搜索",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/auth/search-users?keyword=testbuyer01",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-AUTH-SEARCH-10 HTTP 200\", function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"API-AUTH-SEARCH-10 业务码 0\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(0);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-PROD-LIST-01-查询全部商品",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/products",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-PROD-LIST-01 HTTP 200\", function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"API-PROD-LIST-01 业务码 0\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(0);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-PROD-LIST-02-按场景筛选",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/products?scene=used",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-PROD-LIST-02 HTTP 200\", function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"API-PROD-LIST-02 业务码 0\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(0);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-PROD-LIST-03-关键词搜索",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/products?keyword=玩具",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-PROD-LIST-03 HTTP 200\", function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"API-PROD-LIST-03 业务码 0\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(0);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-PROD-LIST-04-搜索无结果",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/products?keyword=notexist999",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-PROD-LIST-04 HTTP 200\", function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"API-PROD-LIST-04 业务码 0\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(0);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-PROD-LIST-05-场景与关键词组合筛选",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/products?scene=used&keyword=玩具",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-PROD-LIST-05 HTTP 200\", function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"API-PROD-LIST-05 业务码 0\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(0);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-PROD-MINE-01-卖家查询自己发布的商品",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/products/mine",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{seller_token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-PROD-MINE-01 HTTP 200\", function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"API-PROD-MINE-01 业务码 0\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(0);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-PROD-MINE-02-未登录查询我的记录",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/products/mine",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-PROD-MINE-02 HTTP 401\", function () {",
+              "  pm.response.to.have.status(401);",
+              "});",
+              "",
+              "pm.test(\"API-PROD-MINE-02 业务码 401\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(401);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-PROD-MINE-03-使用伪造Token查询",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/products/mine",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{ci_invalid_token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-PROD-MINE-03 HTTP 401\", function () {",
+              "  pm.response.to.have.status(401);",
+              "});",
+              "",
+              "pm.test(\"API-PROD-MINE-03 业务码 401\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(401);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-PROD-DETAIL-01-查询存在的商品",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/products/1001",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-PROD-DETAIL-01 HTTP 200\", function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"API-PROD-DETAIL-01 业务码 0\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(0);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-PROD-DETAIL-02-查询不存在的商品",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/products/999999",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-PROD-DETAIL-02 HTTP 404\", function () {",
+              "  pm.response.to.have.status(404);",
+              "});",
+              "",
+              "pm.test(\"API-PROD-DETAIL-02 业务码 404\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(404);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-PROD-DETAIL-03-使用非法商品ID",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/products/abc",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-PROD-DETAIL-03 HTTP 404\", function () {",
+              "  pm.response.to.have.status(404);",
+              "});",
+              "",
+              "pm.test(\"API-PROD-DETAIL-03 业务码 404\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(404);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-PROD-PUBLISH-01-卖家合法发布二手商品",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"scene\": \"used\",\r\n  \"category\": \"数码影音\",\r\n  \"title\": \"二手耳机测试\",\r\n  \"subtitle\": \"二手 9成新 · 审核通过\",\r\n  \"price\": 200.00,\r\n  \"originPrice\": 399.00,\r\n  \"condition\": \"9成新\",\r\n  \"location\": \"北京航空航天大学\",\r\n  \"description\": \"测试发布的二手耳机，功能正常\",\r\n  \"cover\": \"/files/test-cover.jpg\",\r\n  \"image\": \"https://example.com/test-image.jpg\",\r\n  \"story\": \"这是我自用的耳机，因为升级设备所以转让，功能一切正常，希望找到有缘人。\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/products",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{seller_token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-PROD-PUBLISH-01 HTTP 200\", function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"API-PROD-PUBLISH-01 业务码 0\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(0);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-PROD-PUBLISH-02-未登录发布商品",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"scene\": \"used\",\r\n  \"category\": \"数码影音\",\r\n  \"title\": \"二手耳机测试\",\r\n  \"subtitle\": \"二手 9成新 · 审核通过\",\r\n  \"price\": 200.00,\r\n  \"originPrice\": 399.00,\r\n  \"condition\": \"9成新\",\r\n  \"location\": \"北京航空航天大学\",\r\n  \"description\": \"测试发布的二手耳机，功能正常\",\r\n  \"cover\": \"/files/test-cover.jpg\",\r\n  \"image\": \"https://example.com/test-image.jpg\",\r\n  \"story\": \"这是我自用的耳机，因为升级设备所以转让，功能一切正常，希望找到有缘人。\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/products",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-PROD-PUBLISH-02 HTTP 401\", function () {",
+              "  pm.response.to.have.status(401);",
+              "});",
+              "",
+              "pm.test(\"API-PROD-PUBLISH-02 业务码 401\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(401);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-PROD-PUBLISH-03-买家越权发布商品",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"scene\": \"used\",\r\n  \"category\": \"数码影音\",\r\n  \"title\": \"二手耳机测试\",\r\n  \"subtitle\": \"二手 9成新 · 审核通过\",\r\n  \"price\": 200.00,\r\n  \"originPrice\": 399.00,\r\n  \"condition\": \"9成新\",\r\n  \"location\": \"北京航空航天大学\",\r\n  \"description\": \"测试发布的二手耳机，功能正常\",\r\n  \"cover\": \"/files/test-cover.jpg\",\r\n  \"image\": \"https://example.com/test-image.jpg\",\r\n  \"story\": \"这是我自用的耳机，因为升级设备所以转让，功能一切正常，希望找到有缘人。\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/products",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{buyer_token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-PROD-PUBLISH-03 HTTP 403\", function () {",
+              "  pm.response.to.have.status(403);",
+              "});",
+              "",
+              "pm.test(\"API-PROD-PUBLISH-03 业务码 403\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(403);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-PROD-PUBLISH-04-缺少必填字段",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"scene\": \"used\",\r\n  \"category\": \"数码影音\",\r\n  \"title\": \"\",\r\n  \"subtitle\": \"二手 9成新 · 审核通过\",\r\n  \"price\": 200.00,\r\n  \"originPrice\": 399.00,\r\n  \"condition\": \"9成新\",\r\n  \"location\": \"北京航空航天大学\",\r\n  \"description\": \"测试发布的二手耳机，功能正常\",\r\n  \"cover\": \"/files/test-cover.jpg\",\r\n  \"image\": \"https://example.com/test-image.jpg\",\r\n  \"story\": \"这是我自用的耳机，因为升级设备所以转让，功能一切正常，希望找到有缘人。\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/products",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{seller_token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-PROD-PUBLISH-04 HTTP 400\", function () {",
+              "  pm.response.to.have.status(400);",
+              "});",
+              "",
+              "pm.test(\"API-PROD-PUBLISH-04 业务码 400\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(400);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-PROD-PUBLISH-05-商品价格为负数",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"scene\": \"used\",\r\n  \"category\": \"数码影音\",\r\n  \"title\": \"二手耳机测试\",\r\n  \"subtitle\": \"二手 9成新 · 审核通过\",\r\n  \"price\": -1,\r\n  \"originPrice\": 399.00,\r\n  \"condition\": \"9成新\",\r\n  \"location\": \"北京航空航天大学\",\r\n  \"description\": \"测试发布的二手耳机，功能正常\",\r\n  \"cover\": \"/files/test-cover.jpg\",\r\n  \"image\": \"https://example.com/test-image.jpg\",\r\n  \"story\": \"这是我自用的耳机，因为升级设备所以转让，功能一切正常，希望找到有缘人。\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/products",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{seller_token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-PROD-PUBLISH-05 HTTP 400\", function () {",
+              "  pm.response.to.have.status(400);",
+              "});",
+              "",
+              "pm.test(\"API-PROD-PUBLISH-05 业务码 400\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(400);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-ORDER-LIST-01-买家查询自己的订单",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"scene\": \"used\",\r\n  \"category\": \"数码影音\",\r\n  \"title\": \"二手耳机测试\",\r\n  \"subtitle\": \"二手 9成新 · 审核通过\",\r\n  \"price\": -1,\r\n  \"originPrice\": 399.00,\r\n  \"condition\": \"9成新\",\r\n  \"location\": \"北京航空航天大学\",\r\n  \"description\": \"测试发布的二手耳机，功能正常\",\r\n  \"cover\": \"/files/test-cover.jpg\",\r\n  \"image\": \"https://example.com/test-image.jpg\",\r\n  \"story\": \"这是我自用的耳机，因为升级设备所以转让，功能一切正常，希望找到有缘人。\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/orders",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{buyer_token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-ORDER-LIST-01 HTTP 200\", function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"API-ORDER-LIST-01 业务码 0\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(0);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-ORDER-LIST-02-未登录查询订单",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"scene\": \"used\",\r\n  \"category\": \"数码影音\",\r\n  \"title\": \"二手耳机测试\",\r\n  \"subtitle\": \"二手 9成新 · 审核通过\",\r\n  \"price\": -1,\r\n  \"originPrice\": 399.00,\r\n  \"condition\": \"9成新\",\r\n  \"location\": \"北京航空航天大学\",\r\n  \"description\": \"测试发布的二手耳机，功能正常\",\r\n  \"cover\": \"/files/test-cover.jpg\",\r\n  \"image\": \"https://example.com/test-image.jpg\",\r\n  \"story\": \"这是我自用的耳机，因为升级设备所以转让，功能一切正常，希望找到有缘人。\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/orders",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-ORDER-LIST-02 HTTP 401\", function () {",
+              "  pm.response.to.have.status(401);",
+              "});",
+              "",
+              "pm.test(\"API-ORDER-LIST-02 业务码 401\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(401);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-ORDER-LIST-03-使用伪造Token查询",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"scene\": \"used\",\r\n  \"category\": \"数码影音\",\r\n  \"title\": \"二手耳机测试\",\r\n  \"subtitle\": \"二手 9成新 · 审核通过\",\r\n  \"price\": -1,\r\n  \"originPrice\": 399.00,\r\n  \"condition\": \"9成新\",\r\n  \"location\": \"北京航空航天大学\",\r\n  \"description\": \"测试发布的二手耳机，功能正常\",\r\n  \"cover\": \"/files/test-cover.jpg\",\r\n  \"image\": \"https://example.com/test-image.jpg\",\r\n  \"story\": \"这是我自用的耳机，因为升级设备所以转让，功能一切正常，希望找到有缘人。\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/orders",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{ci_invalid_token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-ORDER-LIST-03 HTTP 401\", function () {",
+              "  pm.response.to.have.status(401);",
+              "});",
+              "",
+              "pm.test(\"API-ORDER-LIST-03 业务码 401\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(401);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-ORDER-CREATE-01-买家正常创建订单",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"items\": [\r\n    {\r\n      \"goodsId\": \"1001\",\r\n      \"quantity\": 1\r\n    }\r\n  ]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/orders",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{buyer_token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-ORDER-CREATE-01 HTTP 200\", function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"API-ORDER-CREATE-01 业务码 0\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(0);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-ORDER-CREATE-02-未登录创建",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"items\": [\r\n    {\r\n      \"goodsId\": \"1001\",\r\n      \"quantity\": 1\r\n    }\r\n  ]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/orders",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-ORDER-CREATE-02 HTTP 401\", function () {",
+              "  pm.response.to.have.status(401);",
+              "});",
+              "",
+              "pm.test(\"API-ORDER-CREATE-02 业务码 401\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(401);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-ORDER-CREATE-03-商品不存在",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"items\": [\r\n    {\r\n      \"goodsId\": \"999999\",\r\n      \"quantity\": 1\r\n    }\r\n  ]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/orders",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{buyer_token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-ORDER-CREATE-03 HTTP 404\", function () {",
+              "  pm.response.to.have.status(404);",
+              "});",
+              "",
+              "pm.test(\"API-ORDER-CREATE-03 业务码 404\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(404);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-ORDER-REVIEW-01-买家正常评价订单",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"productScore\": 5,\r\n  \"sellerScore\": 5,\r\n  \"content\": \"商品很好，卖家发货快，非常满意！\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/orders/9003/review",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{buyer_token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-ORDER-REVIEW-01 HTTP 200\", function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"API-ORDER-REVIEW-01 业务码 0\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(0);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-ORDER-REVIEW-02-未登录评价订单",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"productScore\": 5,\r\n  \"sellerScore\": 5,\r\n  \"content\": \"商品很好，卖家发货快，非常满意！\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/orders/9010/review",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-ORDER-REVIEW-02 HTTP 401\", function () {",
+              "  pm.response.to.have.status(401);",
+              "});",
+              "",
+              "pm.test(\"API-ORDER-REVIEW-02 业务码 401\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(401);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-ORDER-CREATE-03-商品不存在",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{buyer_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"productScore\": 5,\r\n  \"sellerScore\": 5,\r\n  \"content\": \"商品很好，卖家发货快，非常满意！\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/orders/99999/review"
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"API-ORDER-CREATE-03 HTTP 404\", function () {",
+              "  pm.response.to.have.status(404);",
+              "});",
+              "",
+              "pm.test(\"API-ORDER-CREATE-03 业务码 404\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(Number(body.code)).to.eql(404);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-UC-UC01-API-AUTH-LOGIN-ADMIN-01",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{base_url}}/api/auth/login",
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"API-AUTH-LOGIN-ADMIN-01 HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"API-AUTH-LOGIN-ADMIN-01 业务码 0\", () => pm.expect(Number(pm.response.json().code)).to.eql(0));",
+              "pm.test(\"管理员 Token 非空\", () => pm.expect(pm.response.json().data.token).to.be.a(\"string\").and.not.empty);",
+              "pm.collectionVariables.set(\"admin_token\", pm.response.json().data.token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-UC-UC03-API-CENTER-FAVORITE-01",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{base_url}}/api/center/buyer/items/favorite",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{buyer_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"itemId\": \"1001\",\n  \"title\": \"AirWave Pro 降噪耳机\",\n  \"storeName\": \"松果严选数码\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"API-CENTER-FAVORITE-01 HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"API-CENTER-FAVORITE-01 业务码 0\", () => pm.expect(Number(pm.response.json().code)).to.eql(0));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-UC-UC03-API-CENTER-FAVORITE-02",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/api/center/buyer/items/favorite",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{buyer_token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"API-CENTER-FAVORITE-02 HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"API-CENTER-FAVORITE-02 业务码 0\", () => pm.expect(Number(pm.response.json().code)).to.eql(0));",
+              "pm.test(\"收藏列表包含测试商品\", () => pm.expect(pm.response.json().data.some(x => String(x.targetId) === \"1001\")).to.be.true);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-UC-UC03-API-CENTER-FAVORITE-03",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/api/center/buyer/items/favorite",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"API-CENTER-FAVORITE-03 HTTP 401\", () => pm.response.to.have.status(401));",
+              "pm.test(\"API-CENTER-FAVORITE-03 业务码 401\", () => pm.expect(Number(pm.response.json().code)).to.eql(401));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-UC-UC05-API-ADMIN-AUDIT-01",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/api/admin/audit",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{admin_token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"API-ADMIN-AUDIT-01 HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"API-ADMIN-AUDIT-01 业务码 0\", () => pm.expect(Number(pm.response.json().code)).to.eql(0));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-UC-UC05-API-ADMIN-AUDIT-02",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/api/admin/audit",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{buyer_token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"API-ADMIN-AUDIT-02 HTTP 403\", () => pm.response.to.have.status(403));",
+              "pm.test(\"API-ADMIN-AUDIT-02 业务码 403\", () => pm.expect(Number(pm.response.json().code)).to.eql(403));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-UC-UC05-API-ADMIN-AUDIT-03",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/api/admin/audit",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"API-ADMIN-AUDIT-03 HTTP 401\", () => pm.response.to.have.status(401));",
+              "pm.test(\"API-ADMIN-AUDIT-03 业务码 401\", () => pm.expect(Number(pm.response.json().code)).to.eql(401));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-UC-UC08-API-STORE-DETAIL-01",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/api/stores/1",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{buyer_token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"API-STORE-DETAIL-01 HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"API-STORE-DETAIL-01 业务码 0\", () => pm.expect(Number(pm.response.json().code)).to.eql(0));",
+              "pm.test(\"返回目标店铺\", () => pm.expect(String(pm.response.json().data.id)).to.eql(\"1\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-UC-UC08-API-STORE-FOLLOW-01",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{base_url}}/api/stores/1/follow",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{buyer_token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"API-STORE-FOLLOW-01 HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"API-STORE-FOLLOW-01 业务码 0\", () => pm.expect(Number(pm.response.json().code)).to.eql(0));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-UC-UC08-API-STORE-FOLLOW-02",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{base_url}}/api/stores/1/follow",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{buyer_token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"API-STORE-FOLLOW-02 HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"API-STORE-FOLLOW-02 业务码 0\", () => pm.expect(Number(pm.response.json().code)).to.eql(0));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-UC-UC09-API-CENTER-SELLER-01",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/api/center/seller",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{seller_token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"API-CENTER-SELLER-01 HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"API-CENTER-SELLER-01 业务码 0\", () => pm.expect(Number(pm.response.json().code)).to.eql(0));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-UC-UC09-API-CENTER-SELLER-02",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/api/center/seller",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{buyer_token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"API-CENTER-SELLER-02 HTTP 403\", () => pm.response.to.have.status(403));",
+              "pm.test(\"API-CENTER-SELLER-02 业务码 403\", () => pm.expect(Number(pm.response.json().code)).to.eql(403));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-UC-UC10-API-REALNAME-SUBMIT-01",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{base_url}}/api/center/buyer/realname",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{buyer_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"realName\": \"接口测试用户\",\n  \"idCard\": \"110101200001011234\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"API-REALNAME-SUBMIT-01 HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"API-REALNAME-SUBMIT-01 业务码 0\", () => pm.expect(Number(pm.response.json().code)).to.eql(0));",
+              "pm.test(\"实名认证进入待审核\", () => pm.expect(pm.response.json().data.realName.status).to.eql(\"pending\"));",
+              "pm.collectionVariables.set(\"realname_id\", pm.response.json().data.realName.id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-UC-UC10-API-REALNAME-SUBMIT-02",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{base_url}}/api/center/buyer/realname",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{buyer_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"realName\": \"\",\n  \"idCard\": \"\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"API-REALNAME-SUBMIT-02 HTTP 400\", () => pm.response.to.have.status(400));",
+              "pm.test(\"API-REALNAME-SUBMIT-02 业务码 400\", () => pm.expect(Number(pm.response.json().code)).to.eql(400));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-UC-UC11-API-CENTER-ADMIN-01",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/api/center/admin",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{admin_token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"API-CENTER-ADMIN-01 HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"API-CENTER-ADMIN-01 业务码 0\", () => pm.expect(Number(pm.response.json().code)).to.eql(0));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-UC-UC11-API-CENTER-ADMIN-02",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/api/center/admin",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{buyer_token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"API-CENTER-ADMIN-02 HTTP 403\", () => pm.response.to.have.status(403));",
+              "pm.test(\"API-CENTER-ADMIN-02 业务码 403\", () => pm.expect(Number(pm.response.json().code)).to.eql(403));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-UC-UC11-API-REALNAME-APPROVE-01",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "url": "{{base_url}}/api/center/admin/realname/{{realname_id}}/approve",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{admin_token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"API-REALNAME-APPROVE-01 HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"API-REALNAME-APPROVE-01 业务码 0\", () => pm.expect(Number(pm.response.json().code)).to.eql(0));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-UC-UC12-API-TOPIC-LIST-01",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/api/topics",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"API-TOPIC-LIST-01 HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"API-TOPIC-LIST-01 业务码 0\", () => pm.expect(Number(pm.response.json().code)).to.eql(0));",
+              "pm.test(\"话题列表非空\", () => pm.expect(pm.response.json().data).to.be.an(\"array\").that.is.not.empty);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-UC-UC12-API-TOPIC-POST-01",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{base_url}}/api/topics/7001/posts",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{buyer_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"content\": \"API 自动测试发布的社区帖子\",\n  \"images\": [],\n  \"productId\": \"1001\",\n  \"storeId\": \"1\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"API-TOPIC-POST-01 HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"API-TOPIC-POST-01 业务码 0\", () => pm.expect(Number(pm.response.json().code)).to.eql(0));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-UC-UC12-API-TOPIC-POST-02",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{base_url}}/api/topics/7001/posts",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{buyer_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"content\": \"\",\n  \"images\": []\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"API-TOPIC-POST-02 HTTP 400\", () => pm.response.to.have.status(400));",
+              "pm.test(\"API-TOPIC-POST-02 业务码 400\", () => pm.expect(Number(pm.response.json().code)).to.eql(400));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-UC-UC13-API-CHAT-CONVERSATION-01",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{base_url}}/api/chat/conversations",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{buyer_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"sellerId\": 2,\n  \"goodsId\": 1001,\n  \"status\": \"ai\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"API-CHAT-CONVERSATION-01 HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"API-CHAT-CONVERSATION-01 业务码 0\", () => pm.expect(Number(pm.response.json().code)).to.eql(0));",
+              "pm.test(\"会话 ID 非空\", () => pm.expect(pm.response.json().data.covId).to.exist);",
+              "pm.collectionVariables.set(\"conversation_id\", pm.response.json().data.covId);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-UC-UC13-API-CHAT-MESSAGE-01",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{base_url}}/api/chat/conversations/{{conversation_id}}/messages",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{buyer_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"content\": \"这个商品还可以便宜一些吗？\",\n  \"type\": \"CHAT_MESSAGE\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"API-CHAT-MESSAGE-01 HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"API-CHAT-MESSAGE-01 业务码 0\", () => pm.expect(Number(pm.response.json().code)).to.eql(0));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-UC-UC13-API-CHAT-MESSAGE-02",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/api/chat/conversations/{{conversation_id}}/messages",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{admin_token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"API-CHAT-MESSAGE-02 HTTP 403\", () => pm.response.to.have.status(403));",
+              "pm.test(\"API-CHAT-MESSAGE-02 业务码 403\", () => pm.expect(Number(pm.response.json().code)).to.eql(403));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-UC-UC14-API-CHAT-BARGAIN-01",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{base_url}}/api/chat/conversations/{{conversation_id}}/ai-bargain",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{buyer_token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"API-CHAT-BARGAIN-01 HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"API-CHAT-BARGAIN-01 业务码 0\", () => pm.expect(Number(pm.response.json().code)).to.eql(0));",
+              "pm.test(\"议价建议非空\", () => pm.expect(pm.response.json().data.message.content).to.be.a(\"string\").and.not.empty);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-UC-UC14-API-CHAT-TRANSFER-01",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{base_url}}/api/chat/conversations/{{conversation_id}}/transfer",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{buyer_token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"API-CHAT-TRANSFER-01 HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"API-CHAT-TRANSFER-01 业务码 0\", () => pm.expect(Number(pm.response.json().code)).to.eql(0));",
+              "pm.test(\"会话转为人工状态\", () => pm.expect(pm.response.json().data.status).to.eql(\"active\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-UC-UC15-API-AI-ASSIST-01",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{base_url}}/api/ai/assist",
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"productId\": \"1001\",\n  \"question\": \"购买二手耳机需要检查什么？\",\n  \"offer\": 600\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"API-AI-ASSIST-01 HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"API-AI-ASSIST-01 业务码 0\", () => pm.expect(Number(pm.response.json().code)).to.eql(0));",
+              "pm.test(\"AI 建议非空\", () => pm.expect(pm.response.json().data.answer).to.be.a(\"string\").and.not.empty);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-UC-UC15-API-AI-PUBLISH-01",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{base_url}}/api/ai/publish-suggestion",
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"scene\": \"used\",\n  \"category\": \"数码影音\",\n  \"condition\": \"九成新\",\n  \"keyword\": \"蓝牙耳机\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"API-AI-PUBLISH-01 HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"API-AI-PUBLISH-01 业务码 0\", () => pm.expect(Number(pm.response.json().code)).to.eql(0));",
+              "pm.test(\"发布建议包含标题\", () => pm.expect(pm.response.json().data.title).to.be.a(\"string\").and.not.empty);"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost",
+      "type": "string"
+    },
+    {
+      "key": "unique_username",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "unique_phone",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "buyer_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "seller_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "ci_invalid_token",
+      "value": "not-a-valid-jwt",
+      "type": "string"
+    },
+    {
+      "key": "admin_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "realname_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "conversation_id",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

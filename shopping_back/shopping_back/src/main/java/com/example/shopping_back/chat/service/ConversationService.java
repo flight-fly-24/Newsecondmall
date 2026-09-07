@@ -15,6 +15,7 @@ import com.example.shopping_back.chat.dto.CreateConversationRequest;
 import com.example.shopping_back.chat.dto.UpdateConversationStatusRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import java.util.Date;
 import java.util.List;
@@ -74,10 +75,14 @@ public class ConversationService {
             return existing;
         }
         ProductRecord product = shopProductMapper.selectById(request.getGoodsId());
-        if (product == null) {
+        if (product == null && (request.getSellerId() == null || request.getSellerId() <= 0)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "商品不存在");
         }
-        Integer sellerId = product.getSellerId();
+        // 已迁移商品位于 catalog-service，旧聊天库中没有商品行；前端携带目录服务返回的发布者 ID。
+        Integer sellerId = product == null ? request.getSellerId() : product.getSellerId();
+        if (sellerId.equals(buyerId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "不能与自己创建商品会话");
+        }
         Conversation conv = new Conversation();
         conv.setBuyerId(buyerId);
         conv.setSellerId(sellerId);
@@ -108,6 +113,16 @@ public class ConversationService {
 
     public void updateLastActiveTime(Integer covId) {
         conversationMapper.updateLastActiveTime(covId);
+    }
+
+    @Transactional
+    public void deleteConversation(Integer covId) {
+        Conversation conversation = conversationMapper.selectById(covId);
+        if (conversation == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Conversation not found");
+        }
+        chatMessageMapper.deleteByCovId(covId);
+        conversationMapper.deleteById(covId);
     }
 
     public Integer getOtherParticipantId(Integer covId, Integer userId) {

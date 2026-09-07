@@ -79,6 +79,21 @@ public interface ShopProductMapper {
     @Options(useGeneratedKeys = true, keyProperty = "goodsId", keyColumn = "goods_id")
     int insert(ProductRecord product);
 
+    @Update("""
+            UPDATE goods
+            SET goods_name = #{goodsName},
+                category = #{category},
+                goods_desc = #{goodsDesc},
+                goods_condition = #{goodsCondition},
+                story = #{story},
+                price = #{price},
+                floor_price = #{floorPrice},
+                address = #{address},
+                image = #{image}
+            WHERE goods_id = #{goodsId}
+            """)
+    int update(ProductRecord product);
+
     @Select(BASE_SELECT + """
             WHERE g.status IN ('approved', '0')
               AND (#{scene} IS NULL OR #{scene} = '' OR #{scene} = 'all' OR g.scene = #{scene})

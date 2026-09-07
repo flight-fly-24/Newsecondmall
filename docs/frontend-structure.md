@@ -10,7 +10,7 @@
 - `data/catalog.js`：前端演示数据，包括商品、话题、店铺、订单 tab 等。
 - `utils/request.js`：统一请求封装，会自动携带登录 token。
 - `utils/auth.js`：token、用户缓存和错误信息处理。
-- `utils/cart.js`：购物车本地存储、商品合并、店铺分组。
+- `utils/cart.js`：购物车接口封装（`/api/cart`，trade-service）与按店铺分组。
 - `utils/address.js`：收货地址本地存储、默认地址管理。
 - `services/auth.js`：登录、注册、获取当前用户信息。
 

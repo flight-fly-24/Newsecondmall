@@ -1,0 +1,35 @@
+# 发版由流水线把所有 newTag 改成同一个 release-<流水线号>-<commit>。
+# 手工改 tag 时 backend / frontend / 各微服务应对齐，不要覆盖 SWR 里已有的 tag。
+# 部署：sudo kubectl apply -k k8s/
+# 不要 kubectl apply -f k8s/
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+commonAnnotations:
+  songguo.dev/image-tag: "mytest-20260827"
+  songguo.dev/commit-id: "unknown"
+  songguo.dev/pipeline-number: "manual"
+resources:
+  - namespace.yaml
+  - configmap-app.yaml
+  - mysql-init-configmap.yaml
+  - mysql.yaml
+  - backend.yaml
+  - frontend.yaml
+  - user-service.yaml
+  - catalog-service.yaml
+  - catalog-service-hpa.yaml
+  - trade-service.yaml
+  - interaction-service.yaml
+images:
+  - name: swr.cn-north-4.myhuaweicloud.com/songguo/shop-backend
+    newTag: mytest-20260827
+  - name: swr.cn-north-4.myhuaweicloud.com/songguo/shop-frontend
+    newTag: mytest-20260827
+  - name: swr.cn-north-4.myhuaweicloud.com/songguo/shop-user-service
+    newTag: release-user-service-20260902
+  - name: swr.cn-north-4.myhuaweicloud.com/songguo/shop-catalog-service
+    newTag: release-catalog-schemafix-20260901-1125
+  - name: swr.cn-north-4.myhuaweicloud.com/songguo/trade-service
+    newTag: release-trade-service-20260901-2
+  - name: swr.cn-north-4.myhuaweicloud.com/songguo/interaction-service
+    newTag: release-20260827

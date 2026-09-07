@@ -37,4 +37,7 @@ public interface ConversationMapper {
 
     @Update("UPDATE conversation SET update_time = NOW() WHERE cov_id = #{covId}")
     void updateLastActiveTime(@Param("covId") Integer covId);
+
+    @Delete("DELETE FROM conversation WHERE cov_id = #{covId}")
+    int deleteById(@Param("covId") Integer covId);
 }

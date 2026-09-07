@@ -244,6 +244,19 @@ public final class ShopDtos {
     ) {
     }
 
+    public record UpdateProductRequest(
+            @NotBlank(message = "标题不能为空") String title,
+            @NotBlank(message = "分类不能为空") String category,
+            @NotNull(message = "价格不能为空") BigDecimal price,
+            String image,
+            String condition,
+            String description,
+            String story,
+            BigDecimal floorPrice,
+            String location
+    ) {
+    }
+
     public record StoreUpdateRequest(
             @NotBlank(message = "店铺名称不能为空") String name,
             String desc,

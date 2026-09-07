@@ -100,7 +100,7 @@
     import { publishProduct, requestPublishSuggestion } from '@/services/shop.js'
     import { buildRequestUrl } from '../../config/env.js'
     import { resolveImageUrl } from '@/utils/media.js'
-    import { getCachedUser, normalizeRole } from '@/utils/auth.js'
+    import { getCachedUser, normalizeRole, pickErrorMessage } from '@/utils/auth.js'
 
     export default {
         data() {
@@ -244,7 +244,7 @@
                 })
                 .catch(err => {
                     console.error('发布失败错误日志：', err);
-                    uni.showToast({ title: '发布失败，请重试', icon: 'none' });
+                    uni.showToast({ title: pickErrorMessage(err) || '发布失败，请重试', icon: 'none' });
                 })
                 .finally(() => {
                     this.loading = false;

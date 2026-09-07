@@ -1,0 +1,16 @@
+=== 4. trade-service 日志（可见跨服务调用异常被捕获）===
+2026-09-02T20:48:50.728+08:00  INFO 1 --- [trade-service] [           main] c.e.mall.order.TradeServiceApplication   : No active profile set, falling back to 1 default profile: "default"
+2026-09-02T20:48:55.642+08:00  INFO 1 --- [trade-service] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8083 (http)
+2026-09-02T20:48:55.727+08:00  INFO 1 --- [trade-service] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-09-02T20:48:55.727+08:00  INFO 1 --- [trade-service] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.53]
+2026-09-02T20:48:56.121+08:00  INFO 1 --- [trade-service] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-09-02T20:48:56.123+08:00  INFO 1 --- [trade-service] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 5201 ms
+2026-09-02T20:48:57.240+08:00  INFO 1 --- [trade-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-09-02T20:48:58.034+08:00  INFO 1 --- [trade-service] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@498a612d
+2026-09-02T20:48:58.037+08:00  INFO 1 --- [trade-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-09-02T20:49:00.646+08:00  INFO 1 --- [trade-service] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8083 (http) with context path '/'
+2026-09-02T20:49:00.726+08:00  INFO 1 --- [trade-service] [           main] c.e.mall.order.TradeServiceApplication   : Started TradeServiceApplication in 12.179 seconds (process running for 14.179)
+2026-09-02T20:49:12.419+08:00  INFO 1 --- [trade-service] [nio-8083-exec-5] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-09-02T20:49:12.419+08:00  INFO 1 --- [trade-service] [nio-8083-exec-5] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-09-02T20:49:12.420+08:00  INFO 1 --- [trade-service] [nio-8083-exec-5] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2026-09-02T21:55:05.560+08:00  WARN 1 --- [trade-service] [nio-8083-exec-1] .w.s.m.s.DefaultHandlerExceptionResolver : Resolved [org.springframework.web.bind.MethodArgumentNotValidException: Validation failed for argument [1] in public com.example.mall.order.OrderController$ApiResult<java.util.List<com.example.mall.order.OrderService$StorefrontOrderView>> com.example.mall.order.OrderController.create(java.lang.String,com.example.mall.order.OrderController$CreateOrdersRequest): [Field error in object 'createOrdersRequest' on field 'items': rejected value [null]; codes [NotEmpty.createOrdersRequest.items,NotEmpty.items,NotEmpty.java.util.List,NotEmpty]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [createOrdersRequest.items,items]; arguments []; default message [items]]; default message [must not be empty]] ]

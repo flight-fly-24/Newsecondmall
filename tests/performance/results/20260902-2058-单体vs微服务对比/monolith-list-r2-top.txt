@@ -1,0 +1,10 @@
+backend-7b4f58fff-f7mbr               459m   181Mi   
+catalog-service-845fdfd868-79jkm      4m     140Mi   
+catalog-service-845fdfd868-d6krv      2m     139Mi   
+catalog-service-845fdfd868-njbnw      1m     163Mi   
+catalog-service-845fdfd868-tbnsc      1m     145Mi   
+frontend-6fb7697d9-r4mvz              1m     5Mi     
+interaction-service-bbb47b554-2cfzp   1m     148Mi   
+mysql-d976695d9-vz7d7                 468m   521Mi   
+trade-service-5fb7d4bdc7-wdsfz        1m     130Mi   
+user-service-5fdb56745b-k48db         1m     167Mi   
